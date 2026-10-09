@@ -5,7 +5,7 @@ Source: https://unsplash.com/license (free use; attribution retained).
 """
 from pathlib import Path
 from io import BytesIO
-import time, urllib.request, urllib.error
+import time, json, urllib.request, urllib.error
 from PIL import Image, ImageOps
 
 PHOTOS = {
@@ -31,13 +31,21 @@ missing=[]
 for country,(landmark,pid) in PHOTOS.items():
     url=f"https://images.unsplash.com/{pid}?auto=format&fit=crop&w=1600&h=900&q=82"
     path=OUT/f"{country}.jpg"
-    if path.exists():
+    if path.exists() and country!="kr":
         print("Existing:",country,flush=True)
     else:
         success=False
         for attempt in range(3):
             try:
-                req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (EducationalGame; world-catch-game)"})
+                if country=="kr":
+                    # The previous Unsplash ID depicted rain, not Korea.
+                    # Use Wikipedia's Gyeongbokgung article lead photograph instead.
+                    api="https://en.wikipedia.org/api/rest_v1/page/summary/Gyeongbokgung"
+                    with urllib.request.urlopen(urllib.request.Request(api,headers={"User-Agent":"WorldCatchGame/1.0 (educational project; github.com/jeonsein98/world-catch-game)","Accept":"application/json"}),timeout=40) as response:
+                        info=json.load(response)
+                    url=info.get("originalimage",info.get("thumbnail",{})).get("source")
+                    if not url:raise RuntimeError("Gyeongbokgung photograph unavailable")
+                req=urllib.request.Request(url,headers={"User-Agent":"WorldCatchGame/1.0 (educational project; github.com/jeonsein98/world-catch-game)"})
                 with urllib.request.urlopen(req,timeout=45) as response:
                     raw=response.read(12_000_000)
                 img=Image.open(BytesIO(raw)).convert("RGB")
@@ -50,7 +58,10 @@ for country,(landmark,pid) in PHOTOS.items():
                 print("Retry:",country,str(e),flush=True)
                 time.sleep(4*(attempt+1))
         if not success:missing.append(country)
-    credits += [f"## {country.upper()} — {landmark}",f"- Image URL: {url}",f"- Source: https://unsplash.com/photos/{pid.removeprefix('photo-')}", "- License: https://unsplash.com/license",""]
+    if country=="kr":
+        credits += ["## KR — Gyeongbokgung Palace, Seoul",f"- Image URL: {url}","- Source: https://en.wikipedia.org/wiki/Gyeongbokgung","- License and photographer: inspect the linked Wikimedia Commons file page before reuse",""]
+    else:
+        credits += [f"## {country.upper()} — {landmark}",f"- Image URL: {url}",f"- Source: https://unsplash.com/photos/{pid.removeprefix('photo-')}", "- License: https://unsplash.com/license",""]
 (OUT/"CREDITS.md").write_text("\n".join(credits),encoding="utf-8")
 (OUT/"MISSING.txt").write_text("\n".join(missing)+"\n" if missing else "All 11 photos downloaded.\n",encoding="utf-8")
 print("MISSING:",missing,flush=True)
