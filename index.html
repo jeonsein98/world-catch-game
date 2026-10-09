@@ -78,10 +78,23 @@
 #choicePanel button.hand-focus,#rouletteSpin.hand-focus,#rouletteClose.hand-focus{outline:6px solid #ffbf00;outline-offset:5px;filter:brightness(1.07);transform:scale(1.035)}
 .roulette-label span{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif!important;font-size:clamp(32px,5vw,62px)!important;color:#15385c;text-shadow:none!important;white-space:nowrap}
 #rouletteSpin{background:#ffdf54;color:#503300}#rouletteClose{background:#fff;color:#315275}
+
+#countryWelcome{position:absolute;inset:0;z-index:35;display:none;align-items:center;justify-content:center;background:#0b3975c9;padding:16px}
+#countryWelcome.visible{display:flex}
+#welcomeCard{width:min(90%,530px);background:#fffdf3;border:7px solid #fff;border-radius:36px;padding:22px;text-align:center;box-shadow:0 15px 55px #001b4e77}
+#welcomeCard h2{font-size:clamp(23px,3.3vw,38px);color:#185a98;margin:6px}
+#welcomeCharacter{font-size:clamp(85px,14vw,145px);position:relative;display:block;animation:welcomeBounce 1.2s ease-in-out infinite alternate}
+#welcomeCharacter svg{width:min(38vw,190px);height:220px;max-height:28vh;overflow:visible}
+#welcomeGreeting{font-size:clamp(24px,3vw,36px);font-weight:900;color:#c05b1b;margin:8px}
+#welcomePron{font-size:clamp(17px,2vw,22px);color:#365a79;margin:4px}
+#welcomeContinue,#welcomeRepeat{border:0;border-radius:22px;padding:12px 20px;font-size:clamp(17px,2vw,22px);font-weight:900;cursor:pointer;margin:8px}
+#welcomeContinue{background:#ffda55;color:#563609}#welcomeRepeat{background:#c4ecfc;color:#164e7e}
+#welcomeContinue.hand-focus,#welcomeRepeat.hand-focus{outline:5px solid #ffb900;outline-offset:3px}
+@keyframes welcomeBounce{to{transform:translateY(-9px) rotate(2deg)}}
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
 <main><div class="toolbar"><button id="cameraButton">📷 웹캠 손 인식 시작</button><button id="mouseButton" class="alt">🖱️ 마우스·터치 연습</button><label>🔊 음성 <input type="checkbox" id="sound" checked></label><span id="status">웹캠 모드에서는 🤏 잡기 → 이동 → 🖐️ 놓기</span></div>
-<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><button id="rouletteButton" type="button">🎡 랜덤 여행 룰렛</button><div id="choicePanel"><div class="choice-box"><h2>🌏 어디로 여행을 떠날까요?</h2><p>여행 방법을 골라 보세요!</p><div class="choice-actions"><button id="chooseFlag" type="button">🧳 내가 나라 고르기</button><button id="chooseRoulette" type="button">🎡 룰렛으로 뽑기</button></div></div></div><div id="rouletteLayer"><div id="roulettePointer">▼</div><div id="rouletteWheel"></div><button id="rouletteSpin" type="button">🎲 룰렛 돌리기!</button><button id="rouletteClose" type="button">닫기</button></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="prepareCamera" type="button">📷 웹캠 손 인식 시작</button><button id="start" disabled>⏳ 카메라 연결 후 시작</button><button id="skipCamera" type="button" style="display:block;margin:12px auto;background:#fff1b5;color:#4c3a10;border:2px solid #e6bf50;border-radius:18px;padding:12px 20px;font-weight:900;cursor:pointer">🖱️ 웹캠 없이 먼저 시작하기</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
+<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><button id="rouletteButton" type="button">🎡 랜덤 여행 룰렛</button><div id="countryWelcome"><div id="welcomeCard"><h2 id="welcomeTitle">여행 친구를 만나요!</h2><div id="welcomeCharacter"></div><div id="welcomeGreeting"></div><div id="welcomePron"></div><button id="welcomeRepeat" type="button">🔊 인사 다시 듣기</button><button id="welcomeContinue" type="button">✈️ 게임 시작!</button></div></div><div id="choicePanel"><div class="choice-box"><h2>🌏 어디로 여행을 떠날까요?</h2><p>여행 방법을 골라 보세요!</p><div class="choice-actions"><button id="chooseFlag" type="button">🧳 내가 나라 고르기</button><button id="chooseRoulette" type="button">🎡 룰렛으로 뽑기</button></div></div></div><div id="rouletteLayer"><div id="roulettePointer">▼</div><div id="rouletteWheel"></div><button id="rouletteSpin" type="button">🎲 룰렛 돌리기!</button><button id="rouletteClose" type="button">닫기</button></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="prepareCamera" type="button">📷 웹캠 손 인식 시작</button><button id="start" disabled>⏳ 카메라 연결 후 시작</button><button id="skipCamera" type="button" style="display:block;margin:12px auto;background:#fff1b5;color:#4c3a10;border:2px solid #e6bf50;border-radius:18px;padding:12px 20px;font-weight:900;cursor:pointer">🖱️ 웹캠 없이 먼저 시작하기</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
 <p class="note">카메라 영상은 기기 안에서 처리하며 서버에 업로드하거나 저장하지 않습니다. 웹캠은 HTTPS 또는 localhost에서 실행하세요. MediaPipe 파일은 같은 Netlify 사이트에 함께 배포하도록 설계했습니다. 국기는 실제 국기 도안(SVG)이며, 문화 카드는 현재 그림 문자 시제품입니다.</p></main>
 <script>
 window.addEventListener("error",function(e){const p=document.getElementById("prepState");if(p)p.textContent="❌ 실행 오류: "+e.message+" (줄 "+e.lineno+")";});
@@ -117,7 +130,7 @@ function move(p){if(!active)return;const w=active.e.classList.contains("flag-car
 function restore(o){o.x=o.ox;o.y=o.oy;position(o)}
 function release(){if(!active)return;$("handHint").textContent="🖐️ 손을 펴서 놓았어요!";const o=active;active=null;o.e.classList.remove("dragging");const center={x:o.x+(o.e.classList.contains("flag-card")?6.5:7.5),y:o.y+(o.e.classList.contains("flag-card")?7.5:9)};const r=target.getBoundingClientRect(),g=game.getBoundingClientRect();const tx=(r.left-g.left)/g.width*100,ty=(r.top-g.top)/g.height*100,tw=r.width/g.width*100,th=r.height/g.height*100;
 if(center.x<tx-4||center.x>tx+tw+4||center.y<ty-5||center.y>ty+th+5){restore(o);$("handHint").textContent="목표 영역 가까이에서 손을 펴 주세요";return}
-if(phase===1){banner("참 잘했어요! ⭐");country=o.answer;remove(o);advance("멋진 선택! "+data[country].name+"으로 출발!",letters);return}
+if(phase===1){banner("참 잘했어요! ⭐");country=o.answer;remove(o);advance("멋진 선택! "+data[country].name+"으로 출발!",showCountryWelcome);return}
 if(phase===2){const idx=done.length,slots=[...target.querySelectorAll(".slot")],slot=slots[idx];const sr=slot.getBoundingClientRect();const px=(sr.left+sr.width/2-g.left)/g.width*100;const tolerance=17;if(o.answer===data[country].letters[idx]&&Math.abs(center.x-px)<tolerance){done.push(o.answer);remove(o);drawSlots();banner("정답! ⭐");say(o.answer);if(done.length===data[country].letters.length)advance("나라 이름 완성!",culture)}else{restore(o);o.e.classList.add("wrong");setTimeout(()=>o.e.classList.remove("wrong"),600);banner("다시 도전!");say("다시 도전해 볼까요?")}return}
 if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();if(collected.length===3){reward()}else{banner("보물 발견! ⭐");say(o.sub+" 찾았다!")}}else{restore(o);banner("다른 나라의 보물이야!");say("다른 나라의 보물이야! 다시 찾아보자")}}}
 function remove(o){o.removed=true;o.e.remove();objects=objects.filter(x=>x!==o)}
@@ -273,11 +286,53 @@ function burstConfetti(){
  }
  setTimeout(()=>layer.replaceChildren(),3800);
 }
-function start(){$("choicePanel").classList.remove("visible");$("rouletteLayer").classList.remove("visible");rouletteBusy=false;stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");$("rouletteButton").style.display="none";Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});openTravelChoice()}
+function start(){$("countryWelcome").classList.remove("visible");$("choicePanel").classList.remove("visible");$("rouletteLayer").classList.remove("visible");rouletteBusy=false;stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");$("rouletteButton").style.display="none";Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});openTravelChoice()}
 
+const welcomeInfo={
+kr:["안녕하세요!","안녕하세요","ko-KR","#f48ab0","#cfefff","한복"],
+jp:["こんにちは！","곤니치와","ja-JP","#f29bb5","#f7e5f1","기모노"],
+fr:["Bonjour !","봉주르","fr-FR","#497bc8","#e8f1ff","베레모와 줄무늬 옷"],
+br:["Olá!","올라","pt-BR","#45ad73","#ffdc62","축제 의상"],
+au:["G'day!","그데이","en-AU","#d4a76b","#bde6ff","아웃백 모자"],
+cn:["你好！","니하오","zh-CN","#dc454e","#f4d68b","전통풍 의상"],
+ca:["Hello! Bonjour!","헬로! 봉주르!","en-CA","#dd3e4a","#f6e6e4","겨울 의상"],
+us:["Hello!","헬로","en-US","#3674b8","#f7d3cb","카우보이 의상"],
+gb:["Hello!","헬로","en-GB","#b73b44","#f5dfd1","전통풍 정장"],
+de:["Hallo!","할로","de-DE","#549f8e","#f3cf8c","전통풍 조끼"],
+it:["Ciao!","차오","it-IT","#6cb68c","#ffe4bb","전통풍 조끼"]
+};
+let welcomeActive=false;
+function welcomeAvatar(key){
+ const info=welcomeInfo[key]||welcomeInfo.kr;
+ const coat=info[3],trim=info[4];
+ const hat=key==="fr"?'<ellipse cx="92" cy="52" rx="52" ry="12" fill="#314b80"/><path d="M45 48Q66 4 111 25L132 49Z" fill="#314b80"/>':["au","us"].includes(key)?'<ellipse cx="94" cy="49" rx="76" ry="12" fill="#956338"/><path d="M58 45Q55 2 94 12Q135 2 130 45Z" fill="#ad7a4b"/>':key==="gb"?'<rect x="61" y="5" width="65" height="42" rx="8" fill="#30303a"/><rect x="45" y="42" width="100" height="11" rx="4" fill="#30303a"/>':key==="kr"?'<path d="M45 43Q94 -2 143 43L128 54H60Z" fill="#293d66"/>':key==="cn"?'<path d="M57 43Q94 5 130 43Z" fill="#33334e"/>':'';
+ const band=key==="jp"?'<path d="M55 138L132 185M133 138L56 185" stroke="#f6e1e7" stroke-width="15"/>':key==="kr"?'<path d="M65 135L126 191M122 136L66 189" stroke="#fff6c8" stroke-width="16"/>':key==="fr"?'<path d="M72 134V204M103 134V204M133 134V204" stroke="white" stroke-width="12"/>':'';
+ return '<svg viewBox="0 0 190 235" role="img" aria-label="'+data[key].name+'의 '+info[5]+'을 입은 만화 캐릭터"><path d="M56 133L35 150L9 125" fill="none" stroke="#e5a46f" stroke-width="19" stroke-linecap="round"/><path d="M134 133L159 108L178 85" fill="none" stroke="#e5a46f" stroke-width="19" stroke-linecap="round"/><path d="M57 122Q95 108 133 122L149 215Q94 229 42 215Z" fill="'+coat+'" stroke="#fff" stroke-width="5"/>'+band+'<path d="M79 214V230M111 214V230" stroke="#444b66" stroke-width="16" stroke-linecap="round"/><circle cx="94" cy="81" r="49" fill="#eeb784"/><path d="M46 68Q42 20 94 24Q143 20 143 68L126 50Q92 69 62 48Z" fill="#4c3540"/><circle cx="77" cy="84" r="4" fill="#3a2c35"/><circle cx="111" cy="84" r="4" fill="#3a2c35"/><path d="M80 102Q94 117 108 102" stroke="#a34b4c" stroke-width="4" fill="none" stroke-linecap="round"/>'+hat+'</svg>';
+}
+function speakWelcome(){
+ if(!$("sound").checked||!window.speechSynthesis)return;
+ const info=welcomeInfo[country]||welcomeInfo.kr;
+ window.speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(info[0]);u.lang=info[2];u.rate=.82;u.pitch=1.15;
+ const voice=pickVoice(info[2]);if(voice)u.voice=voice;
+ window.speechSynthesis.speak(u);
+}
+function showCountryWelcome(){
+ if(!country)return;
+ stopCountryMusic();lock=true;welcomeActive=true;menuPinchWasDown=false;
+ const info=welcomeInfo[country]||welcomeInfo.kr;
+ $("welcomeTitle").textContent=data[country].flag+" "+data[country].name+"에 오신 걸 환영해요!";
+ $("welcomeCharacter").innerHTML=welcomeAvatar(country);
+ $("welcomeGreeting").textContent=info[0];
+ $("welcomePron").textContent="이렇게 인사해요: "+info[1]+" · "+info[5]+" 스타일";
+ $("countryWelcome").classList.add("visible");
+ speakWelcome();
+}
+$("welcomeRepeat").onclick=speakWelcome;
+$("welcomeContinue").onclick=()=>{$("countryWelcome").classList.remove("visible");welcomeActive=false;lock=false;letters()};
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-upbeat-music-v13";
+const gameVersion="2026.10.09-country-greetings-v14";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -327,7 +382,7 @@ $("rouletteSpin").onclick=()=>{
   country=selected;banner(data[selected].flag+" "+data[selected].name+" 당첨! ✈️");
   say(data[selected].name+"으로 여행을 떠나요!");
   // Wheel decides the destination; begin the letter challenge immediately.
-  letters();
+  showCountryWelcome();
  },5200);
 };
 
@@ -442,7 +497,7 @@ function hoveredFlag(p){
 }
 let menuPinchWasDown=false;
 function handMenuAction(p,pinch){
- const menu=$("choicePanel").classList.contains("visible")?[$("chooseFlag"),$("chooseRoulette")]:$("rouletteLayer").classList.contains("visible")?[$("rouletteSpin"),$("rouletteClose")]:[];
+ const menu=$("countryWelcome").classList.contains("visible")?[$("welcomeRepeat"),$("welcomeContinue")]:$("choicePanel").classList.contains("visible")?[$("chooseFlag"),$("chooseRoulette")]:$("rouletteLayer").classList.contains("visible")?[$("rouletteSpin"),$("rouletteClose")]:[];
  if(!menu.length){menuPinchWasDown=pinch;return false}
  const bounds=game.getBoundingClientRect();
  const px=bounds.left+p.x*bounds.width/100,py=bounds.top+p.y*bounds.height/100;
