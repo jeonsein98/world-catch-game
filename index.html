@@ -120,7 +120,58 @@ function spawnCulture(){
  o.oy=-20;o.fall=12;position(o);
  cultureRecent.push(v.n);if(cultureRecent.length>15)cultureRecent.shift();spawnCount++;
 }
-function reward(){token++;resetObjects();game.classList.add("country-stage");phase=4;setStage("MISSION CLEAR!","🎉 국기 조각 획득","");showModal("🎉 여행 성공!",`<span style="font-size:70px">${data[country].flag} 🧩</span><br>${data[country].name}의 국기 조각을 얻었어요!`,"다른 나라 여행하기",start);say("여행 성공! 국기 조각을 획득했어요")}
+const celebrations={
+ kr:{text:"축하해요! 정말 잘했어요!",lang:"ko-KR",pron:"축하해요!"},
+ jp:{text:"おめでとう！",lang:"ja-JP",pron:"오메데토!"},
+ fr:{text:"Bravo ! Félicitations !",lang:"fr-FR",pron:"브라보! 펠리시타시옹!"},
+ br:{text:"Parabéns!",lang:"pt-BR",pron:"파라벵스!"},
+ au:{text:"Well done! Congratulations!",lang:"en-AU",pron:"웰 던!"},
+ cn:{text:"恭喜你！",lang:"zh-CN",pron:"궁시 니!"},
+ ca:{text:"Congratulations! Well done!",lang:"en-CA",pron:"콩그레츄레이션스!"},
+ us:{text:"Congratulations! Great job!",lang:"en-US",pron:"콩그레츄레이션스!"},
+ gb:{text:"Brilliant! Well done!",lang:"en-GB",pron:"브릴리언트!"},
+ de:{text:"Herzlichen Glückwunsch!",lang:"de-DE",pron:"헤르츨리헨 글뤽분슈!"},
+ it:{text:"Complimenti! Bravo!",lang:"it-IT",pron:"콤플리멘티! 브라보!"}
+};
+let celebrationAudio=null;
+function pickVoice(lang){
+ const voices=window.speechSynthesis?.getVoices()||[];
+ const exact=voices.filter(v=>v.lang.toLowerCase()===lang.toLowerCase());
+ const regional=voices.filter(v=>v.lang.toLowerCase().split("-")[0]===lang.toLowerCase().split("-")[0]);
+ const options=exact.length?exact:regional;
+ return options.find(v=>/natural|neural|premium|enhanced/i.test(v.name))||options.find(v=>v.localService===false)||options[0]||null;
+}
+function celebrateCountry(){
+ if(!$("sound").checked)return;
+ const info=celebrations[country]||celebrations.kr;
+ // Place optional real-human recordings at voices/kr.mp3, voices/jp.mp3, etc.
+ // If no recording is provided, use the best installed native-language voice.
+ if(celebrationAudio){celebrationAudio.pause();celebrationAudio=null}
+ if("speechSynthesis" in window)window.speechSynthesis.cancel();
+ const audio=new Audio("./voices/"+country+".mp3");
+ celebrationAudio=audio;
+ audio.onended=()=>{if(celebrationAudio===audio)celebrationAudio=null};
+ let fallbackUsed=false;
+ const fallback=()=>{
+  if(fallbackUsed||celebrationAudio!==audio)return;
+  fallbackUsed=true;
+  if(!("speechSynthesis" in window))return;
+  const utterance=new SpeechSynthesisUtterance(info.text);
+  utterance.lang=info.lang;utterance.rate=.92;utterance.pitch=1.08;
+  const voice=pickVoice(info.lang);if(voice)utterance.voice=voice;
+  window.speechSynthesis.speak(utterance);
+ };
+ audio.onerror=fallback;
+ audio.play().catch(fallback);
+}
+function reward(){
+ token++;resetObjects();game.classList.add("country-stage");phase=4;
+ const greeting=celebrations[country]||celebrations.kr;
+ setStage("MISSION CLEAR!","🎉 국기 조각 획득","");
+ showModal("🎉 여행 성공!",`<span style="font-size:70px">${data[country].flag} 🧩</span><br>${data[country].name}의 국기 조각을 얻었어요!<br><strong style="display:inline-block;margin-top:12px;color:#125a9c">${greeting.text}</strong><br><small style="font-size:15px">(${greeting.pron})</small><br><button id="repeatCongrats" type="button" style="margin-top:12px">🔊 축하 인사 다시 듣기</button>`,"다른 나라 여행하기",start);
+ $("repeatCongrats").onclick=celebrateCountry;
+ celebrateCountry();
+}
 function frame(t){const dt=Math.min((t-lastFrame)/1000||0,.05);lastFrame=t;if((phase===2||phase===3)&&!lock){spawnTimer+=dt;const interval=phase===2?1.15:1.25;if(spawnTimer>interval){spawnTimer=0;if(phase===2)spawnLetter();else spawnCulture()}for(const o of [...objects]){if(o===active||!o.fall)continue;o.y+=o.fall*dt;position(o);if(o.y>85){remove(o);if(phase===3){const item=culturePool.find(v=>v.n===o.sub);if(item)item.spawned=false}}}}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 function hoveredFlag(p){
  if(phase!==1||lock||active)return null;
