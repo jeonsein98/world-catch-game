@@ -270,7 +270,7 @@ function start(){$("choicePanel").classList.remove("visible");$("rouletteLayer")
 
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-camera-click-v6";
+const gameVersion="2026.10.09-camera-recovery-v7";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -438,11 +438,20 @@ if(pinch&&active)move(smoothed);
 if(releaseFrames===3&&active)release();
 prevPinch=pinch}
 async let cameraLoading=false;
+function cameraStep(message){status(message);if($("prepState"))$("prepState").textContent=message}
+function withCameraTimeout(promise,ms,message){
+ return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
+}
+function offerMouseFallback(message){
+ cameraStep(message);
+ if($("start")){$("start").disabled=false;$("start").textContent="🖱️ 마우스로 게임 시작"}
+ if($("prepareCamera")){$("prepareCamera").disabled=false;$("prepareCamera").textContent="🔄 웹캠 다시 연결"}
+}
 async function startCamera(){if(cameraLoading)return;cameraLoading=true;try{
-if($("prepareCamera")){$("prepareCamera").disabled=true;$("prepareCamera").textContent="⏳ 웹캠 연결 중…"}status("카메라 연결 중…");if(!navigator.mediaDevices?.getUserMedia)throw Error("HTTPS 또는 localhost에서 열어주세요");if(!stream){stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});$("video").srcObject=stream;await $("video").play()}status("카메라 연결 성공 · 손 인식 파일 불러오는 중…");if(!handLandmarker){const {HandLandmarker,FilesetResolver}=await import("./mediapipe/vision_bundle.mjs");const vision=await FilesetResolver.forVisionTasks("./mediapipe/wasm");handLandmarker=await HandLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"./mediapipe/hand_landmarker.task",delegate:"CPU"},runningMode:"VIDEO",numHands:1})}mode="hand";pinchFrames=0;releaseFrames=0;status("손 인식 준비 완료! 🤏 집고, 움직이고, 🖐️ 놓으세요.");if($("prepState"))$("prepState").textContent="🟢 카메라 연결 성공! 손을 보여 주세요.";
+if($("prepareCamera")){$("prepareCamera").disabled=true;$("prepareCamera").textContent="⏳ 웹캠 연결 중…"}
+if($("start")){$("start").disabled=true;$("start").textContent="⏳ 웹캠 준비 중…"}cameraStep("📷 카메라 사용 권한을 허용해 주세요…");if(!navigator.mediaDevices?.getUserMedia)throw Error("HTTPS 또는 localhost에서 열어주세요");if(!stream){stream=await withCameraTimeout(navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false}),12000,"카메라 권한 응답이 없습니다. 브라우저 주소창에서 카메라를 허용해 주세요.");$("video").srcObject=stream;await withCameraTimeout($("video").play(),6000,"카메라 영상 재생 시간이 초과됐습니다.")}cameraStep("🟡 카메라 연결 성공! 손 인식 모델을 준비하고 있어요…");if(!handLandmarker){const {HandLandmarker,FilesetResolver}=await withCameraTimeout(import("./mediapipe/vision_bundle.mjs"),12000,"손 인식 프로그램을 불러오지 못했습니다.");const vision=await withCameraTimeout(FilesetResolver.forVisionTasks("./mediapipe/wasm"),15000,"손 인식 실행 파일을 불러오지 못했습니다.");handLandmarker=await withCameraTimeout(HandLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"./mediapipe/hand_landmarker.task",delegate:"CPU"},runningMode:"VIDEO",numHands:1}),20000,"손 인식 모델 준비 시간이 초과됐습니다.")}mode="hand";pinchFrames=0;releaseFrames=0;status("손 인식 준비 완료! 🤏 집고, 움직이고, 🖐️ 놓으세요.");if($("prepState"))$("prepState").textContent="🟢 카메라 연결 성공! 손을 보여 주세요.";
 if($("start")){$("start").disabled=false;$("start").textContent="✈️ 게임 시작!"}
-if($("prepareCamera")){$("prepareCamera").disabled=true;$("prepareCamera").textContent="✅ 손 인식 연결 완료"}if(!detectActive){detectActive=true;requestAnimationFrame(detect)}}catch(e){mode="mouse";status("손 인식 시작 실패: "+e.message+" · 마우스 모드 사용 가능");if($("prepState"))$("prepState").textContent="카메라 연결 실패 · 마우스로 여행 시작 가능";if($("start")){$("start").disabled=false;$("start").textContent="🖱️ 마우스로 게임 시작"}
-if($("prepareCamera")){$("prepareCamera").disabled=false;$("prepareCamera").textContent="🔄 웹캠 다시 연결"}
+if($("prepareCamera")){$("prepareCamera").disabled=true;$("prepareCamera").textContent="✅ 손 인식 연결 완료"}if(!detectActive){detectActive=true;requestAnimationFrame(detect)}}catch(e){mode="mouse";status("손 인식 시작 실패: "+e.message+" · 마우스 모드 사용 가능");offerMouseFallback("⚠️ "+e.message+" · 마우스로 시작하거나 웹캠을 다시 연결해 주세요.")
 console.error(e)}finally{cameraLoading=false}}
 function detect(){if(!detectActive)return;if(mode==="hand"&&handLandmarker&&$("video").readyState>=2){try{const v=$("video");if(v.currentTime!==lastVideoTime){lastVideoTime=v.currentTime;const r=handLandmarker.detectForVideo(v,performance.now());const hand=r.landmarks?.[0];if(hand){missingFrames=0;if($("prepState"))$("prepState").textContent="🟢 손 인식 성공! 손가락을 오므렸다 펴 보고 여행을 시작하세요.";const index=hand[8],thumb=hand[4],palm=hand[5],little=hand[17];const scale=Math.max(.06,Math.hypot(palm.x-little.x,palm.y-little.y));const ratio=Math.hypot(index.x-thumb.x,index.y-thumb.y)/scale;const pinch=prevPinch?ratio<.85:ratio<.65;updateHand({x:(1-index.x)*100,y:index.y*100},pinch)}else{missingFrames++;if(missingFrames>12){for(const o of objects)o.e.classList.remove("hovered");$("cursor").classList.remove("near-flag","pinching");if(active){const o=active;active=null;o.e.classList.remove("dragging");restore(o)}prevPinch=false;pinchFrames=0;releaseFrames=0;smoothed=null;$("cursor").style.left="-100px";$("handHint").textContent="📷 손을 카메라에 보여 주세요"}}}}catch(e){console.error(e);status("손 추적 오류: "+e.message)}}requestAnimationFrame(detect)}
 $("cameraButton").onclick=startCamera;$("prepareCamera").onclick=startCamera;$("mouseButton").onclick=()=>{if(active)release();mode="mouse";pinchFrames=0;releaseFrames=0;prevPinch=false;$("cursor").style.left="-100px";status("마우스·터치 모드: 카드를 누른 채 가방/칸으로 끌어 놓으세요")};$("restart").onclick=start;$("fullscreen").onclick=()=>document.fullscreenElement?document.exitFullscreen():game.requestFullscreen?.();$("start").onclick=()=>{if($("start").disabled)return;start()};
