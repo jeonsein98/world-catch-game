@@ -1,6 +1,10 @@
 name: Add country landscape photographs
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/download_landscapes.py'
 permissions:
   contents: write
 jobs:
