@@ -30,7 +30,7 @@ def open_with_retry(url, timeout=45, attempts=5):
         except urllib.error.HTTPError as e:
             if e.code not in (429,500,502,503,504) or n==attempts-1:raise
             retry=e.headers.get("Retry-After","")
-            delay=min(100,max(12, int(retry) if retry.isdigit() else 15*(n+1)))+random.uniform(1,3)
+            delay=min(90,max(20, int(retry) if retry.isdigit() else 20*(n+1)))+random.uniform(1,3)
             print(f"HTTP {e.code}, waiting {delay:.0f}s before retry {n+2}/{attempts}",flush=True)
             time.sleep(delay)
 
@@ -60,7 +60,11 @@ def get_photo(term):
 def main():
     out=Path("landscapes");out.mkdir(exist_ok=True)
     credits=["# Photo credits","", "Images downloaded from Wikimedia Commons. Attribution and license details follow.",""]
+    failed=[]
     for code,term in SEARCHES.items():
+        if (out/(code+".jpg")).exists():
+            print("Already exists:",code,flush=True)
+            continue
         try:
             ratio,page,info,license_name=get_photo(term)
             # Wikimedia only accepts certain thumbnail widths (400 is a safe standard).
@@ -84,8 +88,12 @@ def main():
             credits.extend([f"## {code.upper()} — {term}",f"- Creator: {author}",f"- Source: {source}",f"- License: {license_name} — {license_url}","- Modification: cropped/resized to 1600 × 900 for the game.",""])
             print("Downloaded",code,page["title"])
         except Exception as exc:
-            print("FAILED",code,str(exc))
-            raise
+            print("FAILED",code,str(exc),flush=True)
+            failed.append(code)
+            continue
         time.sleep(4)
     (out/"CREDITS.md").write_text("\n".join(credits),encoding="utf-8")
+    print("Completed:",len(SEARCHES)-len(failed),"Failed:",", ".join(failed),flush=True)
+    if failed:
+        (out/"MISSING.txt").write_text("\n".join(failed)+"\n",encoding="utf-8")
 if __name__=="__main__":main()
