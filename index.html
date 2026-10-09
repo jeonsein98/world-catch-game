@@ -25,7 +25,12 @@
 #cursor::after{content:"☝️";filter:drop-shadow(0 2px 2px #fff)}
 #cursor.pinching::after{content:"🤏"}
 #cursor.near-flag{border-color:#13bd78;background:#e0ffe9;box-shadow:0 0 0 8px #4aff7c66}
-#game:not(.country-stage) .card.art-hotspot.hovered{outline:5px solid #ffcf22;outline-offset:3px;box-shadow:0 0 0 10px #fff7,0 0 24px 10px #ffcf66;animation:pulseFlag .9s ease-in-out infinite alternate;z-index:9;background:#fff3}
+/* Trace the illustrated waving flag, not its rectangular interaction area. */
+#game:not(.country-stage) .card.art-hotspot.hovered{outline:0;box-shadow:none;animation:none;background:transparent;z-index:9}
+#game:not(.country-stage) .card.art-hotspot::before{content:"";position:absolute;inset:-5%;pointer-events:none;opacity:0;transform:rotate(var(--flag-angle,0deg));transition:opacity .12s;clip-path:polygon(1% 12%,21% 6%,47% 1%,73% 7%,99% 3%,97% 86%,74% 91%,48% 85%,23% 95%,2% 89%);background:#ffcf2e;filter:drop-shadow(0 0 5px #ffe267)}
+#game:not(.country-stage) .card.art-hotspot.hovered::before{opacity:.95;animation:flagGlow .75s ease-in-out infinite alternate}
+#game:not(.country-stage) .card.art-hotspot::before{mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;padding:5px}
+@keyframes flagGlow{to{background:#36ed91;opacity:1}}
 #game:not(.country-stage) .card.art-hotspot.hovered::after{content:"🤏 잡기!";position:absolute;left:50%;top:-37px;transform:translateX(-50%);background:#fff;color:#14507e;border:2px solid #ffce37;border-radius:16px;padding:2px 9px;font-size:15px;font-weight:900;white-space:nowrap}
 @keyframes pulseFlag{to{outline-color:#29e99b;box-shadow:0 0 0 12px #fff9,0 0 30px 12px #48ecae}}
 #modal .panel{position:relative;z-index:31}
@@ -69,11 +74,11 @@ function release(){if(!active)return;$("handHint").textContent="🖐️ 손을 �
 if(center.x<tx-4||center.x>tx+tw+4||center.y<ty-5||center.y>ty+th+5){restore(o);$("handHint").textContent="목표 영역 가까이에서 손을 펴 주세요";return}
 if(phase===1){banner("참 잘했어요! ⭐");country=o.answer;remove(o);advance("멋진 선택! "+data[country].name+"으로 출발!",letters);return}
 if(phase===2){const idx=done.length,slots=[...target.querySelectorAll(".slot")],slot=slots[idx];const sr=slot.getBoundingClientRect();const px=(sr.left+sr.width/2-g.left)/g.width*100;const tolerance=17;if(o.answer===data[country].letters[idx]&&Math.abs(center.x-px)<tolerance){done.push(o.answer);remove(o);drawSlots();banner("정답! ⭐");say(o.answer);if(done.length===data[country].letters.length)advance("나라 이름 완성!",culture)}else{restore(o);o.e.classList.add("wrong");setTimeout(()=>o.e.classList.remove("wrong"),600);banner("다시 도전!");say("다시 도전해 볼까요?")}return}
-if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();banner("보물 발견! ⭐");say(o.sub+" 찾았다!");if(collected.length===3)advance("세계의 보물을 모두 찾았어요!",reward)}else{restore(o);banner("다른 나라의 보물이야!");say("다른 나라의 보물이야! 다시 찾아보자")}}}
+if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();banner("보물 발견! ⭐");say(o.sub+" 찾았다!");if(collected.length===3)reward()}else{restore(o);banner("다른 나라의 보물이야!");say("다른 나라의 보물이야! 다시 찾아보자")}}}
 function remove(o){o.removed=true;o.e.remove();objects=objects.filter(x=>x!==o)}
 function advance(msg,next){lock=true;banner(msg);say(msg);const id=token;setTimeout(()=>{if(id===token)next()},1700)}
 function showModal(title,body,button,fn){modal.classList.remove("hidden");modal.querySelector(".panel").innerHTML=`<h2>${title}</h2><p>${body}</p><button id="modalAction">${button}</button>`;$("modalAction").onclick=fn}
-function start(){token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
+function start(){token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
 function drawSlots(){target.innerHTML="";data[country].letters.forEach((v,i)=>{const e=document.createElement("div");e.className="slot "+(i<done.length?"done":i===done.length?"active":"");e.textContent=done[i]||"□";target.append(e)});$("progress").textContent=done.length+" / "+data[country].letters.length}
 function letters(){resetObjects();game.classList.add("country-stage");phase=2;done=[];setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
 function spawnLetter(){
@@ -144,25 +149,14 @@ function pickVoice(lang){
 function celebrateCountry(){
  if(!$("sound").checked)return;
  const info=celebrations[country]||celebrations.kr;
- // Place optional real-human recordings at voices/kr.mp3, voices/jp.mp3, etc.
- // If no recording is provided, use the best installed native-language voice.
  if(celebrationAudio){celebrationAudio.pause();celebrationAudio=null}
- if("speechSynthesis" in window)window.speechSynthesis.cancel();
- const audio=new Audio("./voices/"+country+".mp3");
- celebrationAudio=audio;
- audio.onended=()=>{if(celebrationAudio===audio)celebrationAudio=null};
- let fallbackUsed=false;
- const fallback=()=>{
-  if(fallbackUsed||celebrationAudio!==audio)return;
-  fallbackUsed=true;
-  if(!("speechSynthesis" in window))return;
-  const utterance=new SpeechSynthesisUtterance(info.text);
-  utterance.lang=info.lang;utterance.rate=.92;utterance.pitch=1.08;
-  const voice=pickVoice(info.lang);if(voice)utterance.voice=voice;
-  window.speechSynthesis.speak(utterance);
- };
- audio.onerror=fallback;
- audio.play().catch(fallback);
+ if(!("speechSynthesis" in window))return;
+ // Speak immediately: requesting a nonexistent mp3 first caused a noticeable delay.
+ window.speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(info.text);
+ u.lang=info.lang;u.rate=.94;u.pitch=1.06;
+ const voice=pickVoice(info.lang);if(voice)u.voice=voice;
+ window.speechSynthesis.speak(u);
 }
 function reward(){
  token++;resetObjects();game.classList.add("country-stage");phase=4;
