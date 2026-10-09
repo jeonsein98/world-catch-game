@@ -21,6 +21,17 @@
 #prepGuide{font-size:16px}
 #modal .panel{max-width:680px}
 #prepStart{margin-top:12px}
+#cursor{display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900;color:#164575;transition:background .12s,border-color .12s;z-index:45}
+#cursor::after{content:"☝️";filter:drop-shadow(0 2px 2px #fff)}
+#cursor.pinching::after{content:"🤏"}
+#cursor.near-flag{border-color:#13bd78;background:#e0ffe9;box-shadow:0 0 0 8px #4aff7c66}
+#game:not(.country-stage) .card.art-hotspot.hovered{outline:5px solid #ffcf22;outline-offset:3px;box-shadow:0 0 0 10px #fff7,0 0 24px 10px #ffcf66;animation:pulseFlag .9s ease-in-out infinite alternate;z-index:9;background:#fff3}
+#game:not(.country-stage) .card.art-hotspot.hovered::after{content:"🤏 잡기!";position:absolute;left:50%;top:-37px;transform:translateX(-50%);background:#fff;color:#14507e;border:2px solid #ffce37;border-radius:16px;padding:2px 9px;font-size:15px;font-weight:900;white-space:nowrap}
+@keyframes pulseFlag{to{outline-color:#29e99b;box-shadow:0 0 0 12px #fff9,0 0 30px 12px #48ecae}}
+#modal .panel{position:relative;z-index:31}
+#modal{pointer-events:none;background:#e5f8ffed}
+#modal .panel{pointer-events:auto}
+#modal #prepHand{display:inline-block;transition:transform .1s}
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
 <main><div class="toolbar"><button id="cameraButton">📷 웹캠 손 인식 시작</button><button id="mouseButton" class="alt">🖱️ 마우스·터치 연습</button><label>🔊 음성 <input type="checkbox" id="sound" checked></label><span id="status">웹캠 모드에서는 🤏 잡기 → 이동 → 🖐️ 놓기</span></div>
@@ -51,7 +62,7 @@ function setStage(a,b,t){$("level").textContent=a;$("progress").textContent=b;$(
 function addCard(label,sub,x,y,answer){const e=document.createElement("div");e.className="card";e.innerHTML=`<span>${label}</span>${sub?`<small>${sub}</small>`:""}`;cards.append(e);const o={e,label,sub,x,y,ox:x,oy:y,answer,removed:false,fall:0};objects.push(o);position(o);e.addEventListener("pointerdown",ev=>{if(mode!=="mouse"||lock||active)return;ev.preventDefault();e.setPointerCapture(ev.pointerId);const p=loc(ev);grab(o,p)});e.addEventListener("pointermove",ev=>{if(mode==="mouse"&&active===o)move(loc(ev))});e.addEventListener("pointerup",ev=>{if(mode==="mouse"&&active===o)release()});e.addEventListener("pointercancel",ev=>{if(mode==="mouse"&&active===o)release()});return o}
 function position(o){o.e.style.left=o.x+"%";o.e.style.top=o.y+"%"}
 function loc(ev){const r=game.getBoundingClientRect();return {x:(ev.clientX-r.left)/r.width*100,y:(ev.clientY-r.top)/r.height*100}}
-function grab(o,p){if(lock||active||o.removed)return;active=o;o.e.classList.add("dragging");$("handHint").textContent="✋ 손을 움직여 목표 영역으로 옮겨요";move(p)}
+function grab(o,p){if(lock||active||o.removed)return;active=o;o.e.classList.add("dragging");o.e.classList.remove("hovered");$("cursor").classList.remove("near-flag");$("handHint").textContent="✋ 손을 움직여 목표 영역으로 옮겨요";move(p)}
 function move(p){if(!active)return;const w=active.e.classList.contains("flag-card")?13:15;const h=active.e.classList.contains("flag-card")?15:18;active.x=Math.max(0,Math.min(100-w,p.x-w/2));active.y=Math.max(0,Math.min(100-h,p.y-h/2));position(active)}
 function restore(o){o.x=o.ox;o.y=o.oy;position(o)}
 function release(){if(!active)return;$("handHint").textContent="🖐️ 손을 펴서 놓았어요!";const o=active;active=null;o.e.classList.remove("dragging");const center={x:o.x+(o.e.classList.contains("flag-card")?6.5:7.5),y:o.y+(o.e.classList.contains("flag-card")?7.5:9)};const r=target.getBoundingClientRect(),g=game.getBoundingClientRect();const tx=(r.left-g.left)/g.width*100,ty=(r.top-g.top)/g.height*100,tw=r.width/g.width*100,th=r.height/g.height*100;
@@ -62,7 +73,7 @@ if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();banner("보
 function remove(o){o.removed=true;o.e.remove();objects=objects.filter(x=>x!==o)}
 function advance(msg,next){lock=true;banner(msg);say(msg);const id=token;setTimeout(()=>{if(id===token)next()},1700)}
 function showModal(title,body,button,fn){modal.classList.remove("hidden");modal.querySelector(".panel").innerHTML=`<h2>${title}</h2><p>${body}</p><button id="modalAction">${button}</button>`;$("modalAction").onclick=fn}
-function start(){token++;resetObjects();modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
+function start(){token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
 function drawSlots(){target.innerHTML="";data[country].letters.forEach((v,i)=>{const e=document.createElement("div");e.className="slot "+(i<done.length?"done":i===done.length?"active":"");e.textContent=done[i]||"□";target.append(e)});$("progress").textContent=done.length+" / "+data[country].letters.length}
 function letters(){resetObjects();game.classList.add("country-stage");phase=2;done=[];setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
 function spawnLetter(){
@@ -111,15 +122,32 @@ function spawnCulture(){
 }
 function reward(){token++;resetObjects();game.classList.add("country-stage");phase=4;setStage("MISSION CLEAR!","🎉 국기 조각 획득","");showModal("🎉 여행 성공!",`<span style="font-size:70px">${data[country].flag} 🧩</span><br>${data[country].name}의 국기 조각을 얻었어요!`,"다른 나라 여행하기",start);say("여행 성공! 국기 조각을 획득했어요")}
 function frame(t){const dt=Math.min((t-lastFrame)/1000||0,.05);lastFrame=t;if((phase===2||phase===3)&&!lock){spawnTimer+=dt;const interval=phase===2?1.15:1.25;if(spawnTimer>interval){spawnTimer=0;if(phase===2)spawnLetter();else spawnCulture()}for(const o of [...objects]){if(o===active||!o.fall)continue;o.y+=o.fall*dt;position(o);if(o.y>85){remove(o);if(phase===3){const item=culturePool.find(v=>v.n===o.sub);if(item)item.spawned=false}}}}requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function hoveredFlag(p){
+ if(phase!==1||lock||active)return null;
+ const r=game.getBoundingClientRect();
+ return [...objects].reverse().find(o=>{
+  if(o.removed||!o.e.classList.contains("flag-card"))return false;
+  const b=o.e.getBoundingClientRect();
+  const x=(b.left-r.left)/r.width*100,y=(b.top-r.top)/r.height*100;
+  const w=b.width/r.width*100,h=b.height/r.height*100;
+  return p.x>=x-2&&p.x<=x+w+2&&p.y>=y-2&&p.y<=y+h+2;
+ })||null;
+}
 function updateHand(raw,pinch){const p={x:Math.max(0,Math.min(100,raw.x)),y:Math.max(0,Math.min(100,raw.y))};smoothed=smoothed?{x:smoothed.x*.7+p.x*.3,y:smoothed.y*.7+p.y*.3}:p;const c=$("cursor");c.style.left=smoothed.x+"%";c.style.top=smoothed.y+"%";c.style.background=pinch?"#ffd75b":"#fff8";
+ c.classList.toggle("pinching",pinch);
+ const hover=hoveredFlag(smoothed);
+ c.classList.toggle("near-flag",!!hover);
+ for(const o of objects)if(o.e.classList.contains("flag-card"))o.e.classList.toggle("hovered",o===hover);
+ const prep=$("prepHand");if(prep)prep.style.transform=pinch?"scale(.84)":"scale(1)";
+ if(phase===0&&$("prepState"))$("prepState").textContent=pinch?"🟢 손가락 오므리기 인식 성공! 🤏":"🟢 손 움직임 인식 중! ☝️ 포인터를 따라 움직여 보세요.";
 // Require two stable frames to start and three to release: less accidental drops.
 if(pinch){pinchFrames++;releaseFrames=0}else{releaseFrames++;pinchFrames=0}
-if(pinchFrames===2&&!active&&!lock){const o=[...objects].reverse().find(o=>!o.removed&&smoothed.x>=o.x-6&&smoothed.x<=o.x+(o.e.classList.contains("flag-card")?19:21)&&smoothed.y>=o.y-6&&smoothed.y<=o.y+(o.e.classList.contains("flag-card")?21:24));if(o)grab(o,smoothed)}
+if(pinchFrames===2&&!active&&!lock){const o=phase===1?hover:[...objects].reverse().find(o=>!o.removed&&smoothed.x>=o.x-6&&smoothed.x<=o.x+21&&smoothed.y>=o.y-6&&smoothed.y<=o.y+24);if(o)grab(o,smoothed)}
 if(pinch&&active)move(smoothed);
 if(releaseFrames===3&&active)release();
 prevPinch=pinch}
 async function startCamera(){try{status("카메라 연결 중…");if(!navigator.mediaDevices?.getUserMedia)throw Error("HTTPS 또는 localhost에서 열어주세요");if(!stream){stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:640,height:480},audio:false});$("video").srcObject=stream;await $("video").play()}status("카메라 연결 성공 · 손 인식 파일 불러오는 중…");if(!handLandmarker){const {HandLandmarker,FilesetResolver}=await import("./mediapipe/vision_bundle.mjs");const vision=await FilesetResolver.forVisionTasks("./mediapipe/wasm");handLandmarker=await HandLandmarker.createFromOptions(vision,{baseOptions:{modelAssetPath:"./mediapipe/hand_landmarker.task",delegate:"CPU"},runningMode:"VIDEO",numHands:1})}mode="hand";pinchFrames=0;releaseFrames=0;status("손 인식 준비 완료! 🤏 집고, 움직이고, 🖐️ 놓으세요.");if($("prepState"))$("prepState").textContent="🟢 카메라 연결 성공! 손을 보여 주세요.";if(!detectActive){detectActive=true;requestAnimationFrame(detect)}}catch(e){mode="mouse";status("손 인식 시작 실패: "+e.message+" · 마우스 모드 사용 가능");if($("prepState"))$("prepState").textContent="카메라 연결 실패 · 마우스로 여행 시작 가능";console.error(e)}}
-function detect(){if(!detectActive)return;if(mode==="hand"&&handLandmarker&&$("video").readyState>=2){try{const v=$("video");if(v.currentTime!==lastVideoTime){lastVideoTime=v.currentTime;const r=handLandmarker.detectForVideo(v,performance.now());const hand=r.landmarks?.[0];if(hand){missingFrames=0;if($("prepState"))$("prepState").textContent="🟢 손 인식 성공! 손가락을 오므렸다 펴 보고 여행을 시작하세요.";const index=hand[8],thumb=hand[4],palm=hand[5],little=hand[17];const scale=Math.max(.06,Math.hypot(palm.x-little.x,palm.y-little.y));const ratio=Math.hypot(index.x-thumb.x,index.y-thumb.y)/scale;const pinch=prevPinch?ratio<.85:ratio<.65;updateHand({x:(1-index.x)*100,y:index.y*100},pinch)}else{missingFrames++;if(missingFrames>12){if(active){const o=active;active=null;o.e.classList.remove("dragging");restore(o)}prevPinch=false;pinchFrames=0;releaseFrames=0;smoothed=null;$("cursor").style.left="-100px";$("handHint").textContent="📷 손을 카메라에 보여 주세요"}}}}catch(e){console.error(e);status("손 추적 오류: "+e.message)}}requestAnimationFrame(detect)}
+function detect(){if(!detectActive)return;if(mode==="hand"&&handLandmarker&&$("video").readyState>=2){try{const v=$("video");if(v.currentTime!==lastVideoTime){lastVideoTime=v.currentTime;const r=handLandmarker.detectForVideo(v,performance.now());const hand=r.landmarks?.[0];if(hand){missingFrames=0;if($("prepState"))$("prepState").textContent="🟢 손 인식 성공! 손가락을 오므렸다 펴 보고 여행을 시작하세요.";const index=hand[8],thumb=hand[4],palm=hand[5],little=hand[17];const scale=Math.max(.06,Math.hypot(palm.x-little.x,palm.y-little.y));const ratio=Math.hypot(index.x-thumb.x,index.y-thumb.y)/scale;const pinch=prevPinch?ratio<.85:ratio<.65;updateHand({x:(1-index.x)*100,y:index.y*100},pinch)}else{missingFrames++;if(missingFrames>12){for(const o of objects)o.e.classList.remove("hovered");$("cursor").classList.remove("near-flag","pinching");if(active){const o=active;active=null;o.e.classList.remove("dragging");restore(o)}prevPinch=false;pinchFrames=0;releaseFrames=0;smoothed=null;$("cursor").style.left="-100px";$("handHint").textContent="📷 손을 카메라에 보여 주세요"}}}}catch(e){console.error(e);status("손 추적 오류: "+e.message)}}requestAnimationFrame(detect)}
 $("cameraButton").onclick=startCamera;$("mouseButton").onclick=()=>{if(active)release();mode="mouse";pinchFrames=0;releaseFrames=0;prevPinch=false;$("cursor").style.left="-100px";status("마우스·터치 모드: 카드를 누른 채 가방/칸으로 끌어 놓으세요")};$("restart").onclick=start;$("fullscreen").onclick=()=>document.fullscreenElement?document.exitFullscreen():game.requestFullscreen?.();$("start").onclick=start;
 window.addEventListener("beforeunload",()=>stream?.getTracks().forEach(t=>t.stop()));
 </script></body></html>
