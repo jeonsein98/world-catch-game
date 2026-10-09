@@ -270,7 +270,7 @@ function start(){$("choicePanel").classList.remove("visible");$("rouletteLayer")
 
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-safe-start-v8";
+const gameVersion="2026.10.09-syntax-fixed-v9";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -437,7 +437,7 @@ if(pinchFrames===2&&!active&&!lock){const o=phase===1?hover:[...objects].reverse
 if(pinch&&active)move(smoothed);
 if(releaseFrames===3&&active)release();
 prevPinch=pinch}
-async let cameraLoading=false;
+let cameraLoading=false;
 function cameraStep(message){status(message);if($("prepState"))$("prepState").textContent=message}
 function withCameraTimeout(promise,ms,message){
  return Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(message)),ms))]);
