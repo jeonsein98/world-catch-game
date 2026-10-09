@@ -49,10 +49,24 @@
 .card.treasure-photo .treasure-picture{width:100%;height:74%;object-fit:cover;border-radius:12px;pointer-events:none}
 .card.treasure-photo .treasure-fallback{font-size:clamp(24px,4vw,55px)}
 .card.treasure-photo small{font-size:clamp(12px,1.45vw,20px);line-height:1.15;text-align:center;color:#163b68}
+
+/* The illustrated title and directions are already painted into the selection artwork. */
+#game:not(.country-stage) #prompt{display:none!important}
+#flagOutline{display:none!important}
+#game:not(.country-stage) .card.art-hotspot.hovered{filter:drop-shadow(0 0 13px #fff) drop-shadow(0 0 15px #f9df37);border:0!important;outline:0!important;box-shadow:none!important}
+#game:not(.country-stage) .card.art-hotspot.hovered::after{content:"🤏 잡기!"}
+#rouletteButton{position:absolute;right:12%;top:2%;z-index:20;border:3px solid #fff;background:#f9d24a;color:#55300b;border-radius:40px;padding:10px 20px;font-size:clamp(15px,1.7vw,24px);font-weight:1000;box-shadow:0 5px 12px #173c6c55;cursor:pointer}
+#rouletteLayer{position:absolute;inset:0;z-index:28;background:#063767bd;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+#rouletteLayer.visible{display:flex}
+#rouletteWheel{width:min(58vh,65vw);height:min(58vh,65vw);border-radius:50%;border:10px solid white;box-shadow:0 8px 40px #031c4188;position:relative;transition:transform 5s cubic-bezier(.12,.75,.11,1);background:conic-gradient(#ffcd50 0deg 32.727deg,#f99d9d 32.727deg 65.454deg,#9be2fc 65.454deg 98.181deg,#bbecae 98.181deg 130.908deg,#d5c3fc 130.908deg 163.635deg,#ffd2a4 163.635deg 196.362deg,#f7b3e6 196.362deg 229.089deg,#a4dbdb 229.089deg 261.816deg,#fae18b 261.816deg 294.543deg,#c3d7ff 294.543deg 327.27deg,#fcb8a8 327.27deg 360deg)}
+.roulette-label{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--angle)) translateY(calc(min(58vh,65vw)*-.36)) rotate(calc(-1 * var(--angle)));font-size:clamp(16px,2vw,28px);font-weight:900;text-shadow:0 2px white}
+#roulettePointer{font-size:38px;margin-bottom:-18px;z-index:2;filter:drop-shadow(0 2px 2px #fff)}
+#rouletteSpin,#rouletteClose{border:0;border-radius:25px;padding:12px 25px;font-weight:900;font-size:20px;cursor:pointer}
+#rouletteSpin{background:#ffdf54;color:#503300}#rouletteClose{background:#fff;color:#315275}
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
 <main><div class="toolbar"><button id="cameraButton">📷 웹캠 손 인식 시작</button><button id="mouseButton" class="alt">🖱️ 마우스·터치 연습</button><label>🔊 음성 <input type="checkbox" id="sound" checked></label><span id="status">웹캠 모드에서는 🤏 잡기 → 이동 → 🖐️ 놓기</span></div>
-<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="start">✈️ 여행 시작!</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
+<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><button id="rouletteButton" type="button">🎡 랜덤 여행 룰렛</button><div id="rouletteLayer"><div id="roulettePointer">▼</div><div id="rouletteWheel"></div><button id="rouletteSpin" type="button">🎲 룰렛 돌리기!</button><button id="rouletteClose" type="button">닫기</button></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="start">✈️ 여행 시작!</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
 <p class="note">카메라 영상은 기기 안에서 처리하며 서버에 업로드하거나 저장하지 않습니다. 웹캠은 HTTPS 또는 localhost에서 실행하세요. MediaPipe 파일은 같은 Netlify 사이트에 함께 배포하도록 설계했습니다. 국기는 실제 국기 도안(SVG)이며, 문화 카드는 현재 그림 문자 시제품입니다.</p></main>
 <script type="module">
 const data={
@@ -106,10 +120,9 @@ const flagPaths={
  it:"M877 356 Q880 352 886 353 L1000 380 Q1007 382 1005 390 L988 468 Q986 474 980 472 L850 444 Q845 442 847 435 Z"
 };
 function highlightFlag(o){
- const svg=$("flagOutline");svg.replaceChildren();
- if(!o||!flagPaths[o.answer]||phase!==1)return;
- const path=document.createElementNS("http://www.w3.org/2000/svg","path");
- path.setAttribute("d",flagPaths[o.answer]);svg.append(path);
+ // Avoid inaccurate geometric outlines on the painted flags.
+ $("flagOutline").replaceChildren();
+ document.querySelectorAll(".art-hotspot").forEach(el=>el.classList.toggle("hovered",!!o&&el===o.e));
 }
 const countryPhotos={
  kr:"photo-1534274988757-a28bf1a57c17",
@@ -240,9 +253,43 @@ function burstConfetti(){
  }
  setTimeout(()=>layer.replaceChildren(),3800);
 }
-function start(){stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
+function start(){$("rouletteLayer").classList.remove("visible");rouletteBusy=false;stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");$("rouletteButton").style.display="block";Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
+
+const rouletteCountries=Object.keys(data);
+let rouletteRotation=0,rouletteBusy=false;
+const wheel=$("rouletteWheel");
+rouletteCountries.forEach((key,i)=>{
+ const label=document.createElement("div");label.className="roulette-label";
+ label.style.setProperty("--angle",(i*360/rouletteCountries.length+360/rouletteCountries.length/2)+"deg");
+ label.textContent=data[key].flag;wheel.append(label);
+});
+$("rouletteButton").onclick=()=>{
+ if(phase!==1)return;
+ $("rouletteLayer").classList.add("visible");
+ $("rouletteSpin").disabled=false;
+};
+$("rouletteClose").onclick=()=>{if(!rouletteBusy)$("rouletteLayer").classList.remove("visible")};
+$("rouletteSpin").onclick=()=>{
+ if(rouletteBusy||phase!==1)return;
+ rouletteBusy=true;$("rouletteSpin").disabled=true;
+ const idx=Math.floor(Math.random()*rouletteCountries.length);
+ const slice=360/rouletteCountries.length;
+ const desired=(360-((idx+.5)*slice)%360)%360;
+ const normalized=((rouletteRotation%360)+360)%360;
+ rouletteRotation+=1800+((desired-normalized+360)%360);
+ wheel.style.transform="rotate("+rouletteRotation+"deg)";
+ const selected=rouletteCountries[idx];
+ setTimeout(()=>{
+  rouletteBusy=false;$("rouletteLayer").classList.remove("visible");
+  country=selected;banner(data[selected].flag+" "+data[selected].name+" 당첨! ✈️");
+  say(data[selected].name+"으로 여행을 떠나요!");
+  // Wheel decides the destination; begin the letter challenge immediately.
+  letters();
+ },5200);
+};
+
 function drawSlots(){target.innerHTML="";data[country].letters.forEach((v,i)=>{const e=document.createElement("div");e.className="slot "+(i<done.length?"done":i===done.length?"active":"");e.textContent=done[i]||"□";target.append(e)});$("progress").textContent=done.length+" / "+data[country].letters.length}
-function letters(){resetObjects();setCountryBackdrop();highlightFlag(null);game.classList.add("country-stage");phase=2;done=[];startCountryMusic();setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
+function letters(){$("rouletteButton").style.display="none";resetObjects();setCountryBackdrop();highlightFlag(null);game.classList.add("country-stage");phase=2;done=[];startCountryMusic();setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
 function spawnLetter(){
  if(phase!==2||lock||objects.length>=5)return;
  const wanted=data[country].letters[done.length];
