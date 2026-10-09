@@ -63,15 +63,16 @@ def main():
     for code,term in SEARCHES.items():
         try:
             ratio,page,info,license_name=get_photo(term)
-            # Use a scaled Wikimedia thumbnail rather than repeatedly fetching huge originals.
+            # Wikimedia only accepts certain thumbnail widths (400 is a safe standard).
+            # Let Pillow upscale/crop after downloading the supported thumbnail.
             source_url=info["url"]
             thumb=source_url.replace("/commons/","/commons/thumb/",1)
             filename=source_url.rsplit("/",1)[-1]
-            thumb=thumb+"/1600px-"+filename if "/commons/thumb/" in thumb else source_url
+            thumb=thumb+"/400px-"+filename if "/commons/thumb/" in thumb else source_url
             try:
                 with open_with_retry(thumb,timeout=70,attempts=4) as r:raw=r.read(16_000_000)
             except urllib.error.HTTPError as e:
-                if e.code not in (403,404):raise
+                if e.code not in (400,403,404):raise
                 with open_with_retry(source_url,timeout=70,attempts=4) as r:raw=r.read(22_000_000)
             im=Image.open(BytesIO(raw)).convert("RGB")
             im=ImageOps.fit(im,(1600,900),method=Image.Resampling.LANCZOS,centering=(.5,.48))
