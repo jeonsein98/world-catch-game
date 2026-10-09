@@ -43,7 +43,7 @@ for label,title in ITEMS.items():
  except Exception as e:
   missing.append(label)
   print("Missing",label,str(e),flush=True)
- time.sleep(.5)
+ time.sleep(1.5)
 (out/"SOURCES.md").write_text("\n".join(sources)+"\n",encoding="utf-8")
 (out/"MISSING.txt").write_text("\n".join(missing) if missing else "All treasure photos saved.",encoding="utf-8")
 print("Treasure photo results:",len(ITEMS)-len(missing),"of",len(ITEMS),flush=True)
