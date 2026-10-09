@@ -25,12 +25,18 @@
 #cursor::after{content:"☝️";filter:drop-shadow(0 2px 2px #fff)}
 #cursor.pinching::after{content:"🤏"}
 #cursor.near-flag{border-color:#13bd78;background:#e0ffe9;box-shadow:0 0 0 8px #4aff7c66}
-/* Trace the illustrated waving flag, not its rectangular interaction area. */
-#game:not(.country-stage) .card.art-hotspot.hovered{outline:0;box-shadow:none;animation:none;background:transparent;z-index:9}
-#game:not(.country-stage) .card.art-hotspot::before{content:"";position:absolute;inset:-5%;pointer-events:none;opacity:0;transform:rotate(var(--flag-angle,0deg));transition:opacity .12s;clip-path:polygon(1% 12%,21% 6%,47% 1%,73% 7%,99% 3%,97% 86%,74% 91%,48% 85%,23% 95%,2% 89%);background:#ffcf2e;filter:drop-shadow(0 0 5px #ffe267)}
-#game:not(.country-stage) .card.art-hotspot.hovered::before{opacity:.95;animation:flagGlow .75s ease-in-out infinite alternate}
-#game:not(.country-stage) .card.art-hotspot::before{mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;padding:5px}
-@keyframes flagGlow{to{background:#36ed91;opacity:1}}
+/* Accurate per-flag SVG contours are rendered in the same coordinate system as the artwork. */
+#flagOutline{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:8;overflow:visible}
+#flagOutline path{fill:none;stroke:#ffe145;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px #ffd029);animation:flagLinePulse .65s alternate infinite}
+@keyframes flagLinePulse{to{stroke:#36f6a6;stroke-width:7}}
+#game:not(.country-stage) .card.art-hotspot.hovered{outline:0;box-shadow:none;animation:none;background:transparent}
+#game.country-stage{background-image:linear-gradient(#e8f7ffad,#e8f7ffbf),var(--country-photo,linear-gradient(#78cafa,#d7f5ff));background-position:center;background-size:cover}
+#game.country-stage #overlay{background:linear-gradient(#ffffff22,#ffffff44)}
+#game.country-stage #prompt{background:#ffffffed;text-shadow:none}
+#game.country-stage .card{box-shadow:0 6px 0 #9ac4e0,0 12px 26px #124b8177}
+#confetti{position:absolute;inset:0;pointer-events:none;z-index:29;overflow:hidden}
+#confetti i{position:absolute;top:-8%;width:12px;height:22px;border-radius:3px;animation:confettiFall 2.8s ease-in forwards}
+@keyframes confettiFall{to{transform:translate(var(--dx),110vh) rotate(var(--rot));opacity:0}}
 #game:not(.country-stage) .card.art-hotspot.hovered::after{content:"🤏 잡기!";position:absolute;left:50%;top:-37px;transform:translateX(-50%);background:#fff;color:#14507e;border:2px solid #ffce37;border-radius:16px;padding:2px 9px;font-size:15px;font-weight:900;white-space:nowrap}
 @keyframes pulseFlag{to{outline-color:#29e99b;box-shadow:0 0 0 12px #fff9,0 0 30px 12px #48ecae}}
 #modal .panel{position:relative;z-index:31}
@@ -40,7 +46,7 @@
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
 <main><div class="toolbar"><button id="cameraButton">📷 웹캠 손 인식 시작</button><button id="mouseButton" class="alt">🖱️ 마우스·터치 연습</button><label>🔊 음성 <input type="checkbox" id="sound" checked></label><span id="status">웹캠 모드에서는 🤏 잡기 → 이동 → 🖐️ 놓기</span></div>
-<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><div id="target"></div><div id="cards"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="start">✈️ 여행 시작!</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
+<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="start">✈️ 여행 시작!</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
 <p class="note">카메라 영상은 기기 안에서 처리하며 서버에 업로드하거나 저장하지 않습니다. 웹캠은 HTTPS 또는 localhost에서 실행하세요. MediaPipe 파일은 같은 Netlify 사이트에 함께 배포하도록 설계했습니다. 국기는 실제 국기 도안(SVG)이며, 문화 카드는 현재 그림 문자 시제품입니다.</p></main>
 <script type="module">
 const data={
@@ -74,13 +80,81 @@ function release(){if(!active)return;$("handHint").textContent="🖐️ 손을 �
 if(center.x<tx-4||center.x>tx+tw+4||center.y<ty-5||center.y>ty+th+5){restore(o);$("handHint").textContent="목표 영역 가까이에서 손을 펴 주세요";return}
 if(phase===1){banner("참 잘했어요! ⭐");country=o.answer;remove(o);advance("멋진 선택! "+data[country].name+"으로 출발!",letters);return}
 if(phase===2){const idx=done.length,slots=[...target.querySelectorAll(".slot")],slot=slots[idx];const sr=slot.getBoundingClientRect();const px=(sr.left+sr.width/2-g.left)/g.width*100;const tolerance=17;if(o.answer===data[country].letters[idx]&&Math.abs(center.x-px)<tolerance){done.push(o.answer);remove(o);drawSlots();banner("정답! ⭐");say(o.answer);if(done.length===data[country].letters.length)advance("나라 이름 완성!",culture)}else{restore(o);o.e.classList.add("wrong");setTimeout(()=>o.e.classList.remove("wrong"),600);banner("다시 도전!");say("다시 도전해 볼까요?")}return}
-if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();banner("보물 발견! ⭐");say(o.sub+" 찾았다!");if(collected.length===3)reward()}else{restore(o);banner("다른 나라의 보물이야!");say("다른 나라의 보물이야! 다시 찾아보자")}}}
+if(phase===3){if(o.answer){collected.push(o.sub);remove(o);drawBag();if(collected.length===3){reward()}else{banner("보물 발견! ⭐");say(o.sub+" 찾았다!")}}else{restore(o);banner("다른 나라의 보물이야!");say("다른 나라의 보물이야! 다시 찾아보자")}}}
 function remove(o){o.removed=true;o.e.remove();objects=objects.filter(x=>x!==o)}
 function advance(msg,next){lock=true;banner(msg);say(msg);const id=token;setTimeout(()=>{if(id===token)next()},1700)}
 function showModal(title,body,button,fn){modal.classList.remove("hidden");modal.querySelector(".panel").innerHTML=`<h2>${title}</h2><p>${body}</p><button id="modalAction">${button}</button>`;$("modalAction").onclick=fn}
-function start(){token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
+
+// Outlines follow the flags printed in world_travel_art.png, not the rectangular grab zones.
+const flagPaths={
+ br:"M18 294 Q17 291 22 290 L174 251 Q180 249 182 255 L198 341 Q199 346 193 349 L35 383 Q29 385 28 380 Z",
+ jp:"M240 168 Q241 165 245 164 L350 143 Q358 141 360 148 L377 227 Q379 234 372 237 L264 259 Q257 260 255 254 Z",
+ fr:"M1041 141 Q1043 138 1048 139 L1169 164 Q1175 165 1173 173 L1156 247 Q1155 254 1148 252 L1029 232 Q1025 231 1026 226 Z",
+ kr:"M662 229 Q666 226 673 230 L783 255 Q789 258 789 263 L806 358 Q807 366 799 367 L644 340 Q638 338 641 331 Z",
+ cn:"M350 285 Q349 281 355 280 L476 260 Q481 260 483 266 L511 350 Q513 357 507 360 L366 385 Q360 386 358 380 Z",
+ au:"M264 407 Q263 402 269 401 L395 391 Q401 391 403 397 L421 478 Q422 485 415 487 L284 511 Q279 513 277 507 Z",
+ ca:"M1191 418 Q1193 416 1198 417 L1325 446 Q1330 448 1328 453 L1314 520 Q1313 526 1307 525 L1177 496 Q1171 495 1173 489 Z",
+ us:"M1229 248 Q1227 244 1232 242 L1349 222 L1361 313 L1251 344 Q1247 345 1245 339 Z",
+ gb:"M59 427 Q58 423 63 422 L193 400 Q200 400 202 406 L218 494 Q219 499 213 501 L83 526 Q78 527 76 520 Z",
+ de:"M1055 322 Q1055 317 1061 318 L1175 322 Q1182 322 1182 329 L1181 407 Q1181 412 1174 413 L1052 409 Q1048 409 1049 404 Z",
+ it:"M877 356 Q880 352 886 353 L1000 380 Q1007 382 1005 390 L988 468 Q986 474 980 472 L850 444 Q845 442 847 435 Z"
+};
+function highlightFlag(o){
+ const svg=$("flagOutline");svg.replaceChildren();
+ if(!o||!flagPaths[o.answer]||phase!==1)return;
+ const path=document.createElementNS("http://www.w3.org/2000/svg","path");
+ path.setAttribute("d",flagPaths[o.answer]);svg.append(path);
+}
+const countryPhotos={
+ kr:"photo-1534274988757-a28bf1a57c17",
+ jp:"photo-1493976040374-85c8e12f0c0e",
+ fr:"photo-1502602898657-3e91760cbb34",
+ br:"photo-1483728642387-6c3bdd6c93e5",
+ au:"photo-1506973035872-a4ec16b8e8d9",
+ cn:"photo-1508804185872-d7badad00f7d",
+ ca:"photo-1517935706615-2717063c2225",
+ us:"photo-1485738422979-f5c462d49f74",
+ gb:"photo-1513635269975-59663e0ac1ad",
+ de:"photo-1467269204594-9661b134dd2b",
+ it:"photo-1516483638261-f4dbaf036963"
+};
+function setCountryBackdrop(){
+ const id=countryPhotos[country];
+ game.style.setProperty("--country-photo",id?'url("https://images.unsplash.com/'+id+'?auto=format&fit=crop&w=1600&q=80")':"linear-gradient(#78cafa,#d7f5ff)");
+}
+let fanfareCtx=null;
+function playFanfare(){
+ if(!$("sound").checked)return;
+ try{
+ const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
+ const ctx=fanfareCtx||(fanfareCtx=new AC());ctx.resume();
+ const t=ctx.currentTime+.02;
+ const melody=[[523.25,0,.17],[659.25,.15,.17],[783.99,.30,.17],[1046.5,.48,.55],[783.99,.55,.25],[1046.5,.77,.52]];
+ melody.forEach(([freq,offset,duration],i)=>{
+  const osc=ctx.createOscillator(),gain=ctx.createGain();
+  osc.type=i===3||i===5?"triangle":"sine";osc.frequency.value=freq;
+  gain.gain.setValueAtTime(.0001,t+offset);
+  gain.gain.exponentialRampToValueAtTime(.11,t+offset+.025);
+  gain.gain.exponentialRampToValueAtTime(.0001,t+offset+duration);
+  osc.connect(gain).connect(ctx.destination);osc.start(t+offset);osc.stop(t+offset+duration+.03);
+ });
+ }catch(e){console.warn("Fanfare unavailable",e)}
+}
+function burstConfetti(){
+ const layer=$("confetti");layer.replaceChildren();
+ for(let i=0;i<70;i++){
+  const bit=document.createElement("i");bit.style.left=(Math.random()*100)+"%";
+  bit.style.background=["#ffcc2e","#48d99d","#ff718b","#52b6ff","#9b8cf5"][i%5];
+  bit.style.animationDelay=(Math.random()*.55)+"s";
+  bit.style.setProperty("--dx",(Math.random()*360-180)+"px");
+  bit.style.setProperty("--rot",(Math.random()*1600-800)+"deg");
+  layer.append(bit);
+ }
+ setTimeout(()=>layer.replaceChildren(),3800);
+}
+function start(){token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
 function drawSlots(){target.innerHTML="";data[country].letters.forEach((v,i)=>{const e=document.createElement("div");e.className="slot "+(i<done.length?"done":i===done.length?"active":"");e.textContent=done[i]||"□";target.append(e)});$("progress").textContent=done.length+" / "+data[country].letters.length}
-function letters(){resetObjects();game.classList.add("country-stage");phase=2;done=[];setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
+function letters(){resetObjects();setCountryBackdrop();highlightFlag(null);game.classList.add("country-stage");phase=2;done=[];setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
 function spawnLetter(){
  if(phase!==2||lock||objects.length>=5)return;
  const wanted=data[country].letters[done.length];
@@ -163,8 +237,8 @@ function reward(){
  const greeting=celebrations[country]||celebrations.kr;
  setStage("MISSION CLEAR!","🎉 국기 조각 획득","");
  showModal("🎉 여행 성공!",`<span style="font-size:70px">${data[country].flag} 🧩</span><br>${data[country].name}의 국기 조각을 얻었어요!<br><strong style="display:inline-block;margin-top:12px;color:#125a9c">${greeting.text}</strong><br><small style="font-size:15px">(${greeting.pron})</small><br><button id="repeatCongrats" type="button" style="margin-top:12px">🔊 축하 인사 다시 듣기</button>`,"다른 나라 여행하기",start);
- $("repeatCongrats").onclick=celebrateCountry;
- celebrateCountry();
+ $("repeatCongrats").onclick=()=>{playFanfare();celebrateCountry()};
+ playFanfare();burstConfetti();celebrateCountry();
 }
 function frame(t){const dt=Math.min((t-lastFrame)/1000||0,.05);lastFrame=t;if((phase===2||phase===3)&&!lock){spawnTimer+=dt;const interval=phase===2?1.15:1.25;if(spawnTimer>interval){spawnTimer=0;if(phase===2)spawnLetter();else spawnCulture()}for(const o of [...objects]){if(o===active||!o.fall)continue;o.y+=o.fall*dt;position(o);if(o.y>85){remove(o);if(phase===3){const item=culturePool.find(v=>v.n===o.sub);if(item)item.spawned=false}}}}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 function hoveredFlag(p){
@@ -182,7 +256,7 @@ function updateHand(raw,pinch){const p={x:Math.max(0,Math.min(100,raw.x)),y:Math
  c.classList.toggle("pinching",pinch);
  const hover=hoveredFlag(smoothed);
  c.classList.toggle("near-flag",!!hover);
- for(const o of objects)if(o.e.classList.contains("flag-card"))o.e.classList.toggle("hovered",o===hover);
+ for(const o of objects)if(o.e.classList.contains("flag-card"))o.e.classList.toggle("hovered",o===hover);highlightFlag(hover);
  const prep=$("prepHand");if(prep)prep.style.transform=pinch?"scale(.84)":"scale(1)";
  if(phase===0&&$("prepState"))$("prepState").textContent=pinch?"🟢 손가락 오므리기 인식 성공! 🤏":"🟢 손 움직임 인식 중! ☝️ 포인터를 따라 움직여 보세요.";
 // Require two stable frames to start and three to release: less accidental drops.
