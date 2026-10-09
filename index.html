@@ -42,11 +42,11 @@ it:{name:"이탈리아",flag:"🇮🇹",letters:["이","탈","리","아"],cultur
 };
 const artPositions={kr:[47,32],jp:[17,22],fr:[75,19],br:[3,36],au:[20,53],cn:[25,36],ca:[86,58],us:[89,32],gb:[5,55],de:[75,43],it:[62,49]};
 const $=id=>document.getElementById(id), game=$("game"), cards=$("cards"),target=$("target"),modal=$("modal");
-let phase=0,country=null,done=[],collected=[],active=null,objects=[],mode="mouse",handLandmarker=null,stream=null,detectActive=false,lastVideoTime=-1,prevPinch=false,smoothed=null,lock=false,token=0,spawnTimer=0,lastFrame=0,pinchFrames=0,releaseFrames=0,missingFrames=0,culturePool=[],cultureSpawnIndex=0,cultureSpawnTimer=0;
+let phase=0,country=null,done=[],collected=[],active=null,objects=[],mode="mouse",handLandmarker=null,stream=null,detectActive=false,lastVideoTime=-1,prevPinch=false,smoothed=null,lock=false,token=0,spawnTimer=0,lastFrame=0,pinchFrames=0,releaseFrames=0,missingFrames=0,culturePool=[],cultureSpawnIndex=0,cultureSpawnTimer=0,letterQueue=[],cultureRecent=[],letterRecent=[],spawnCount=0;
 const say=t=>{if(!$("sound").checked||!("speechSynthesis" in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ko-KR";u.rate=.87;window.speechSynthesis.speak(u)};
 const status=t=>$("status").textContent=t;
 function banner(t){const e=$("message");e.textContent=t;e.style.display="block";const id=token;setTimeout(()=>{if(id===token)e.style.display="none"},1100)}
-function resetObjects(){objects=[];cards.innerHTML="";target.innerHTML="";active=null;lock=false;spawnTimer=0;culturePool=[];cultureSpawnIndex=0}
+function resetObjects(){objects=[];cards.innerHTML="";target.innerHTML="";active=null;lock=false;spawnTimer=0;culturePool=[];cultureSpawnIndex=0;cultureRecent=[];letterRecent=[];spawnCount=0}
 function setStage(a,b,t){$("level").textContent=a;$("progress").textContent=b;$("prompt").textContent=t;$("handHint").textContent=phase===2?"🔤 글자를 집어 노란색 칸에 놓아요":phase===3?"🌧️ 내려오는 문화 보물을 잡아 가방에 넣어요":"🤏 국기를 집어 🧳 가방에 놓아요"}
 function addCard(label,sub,x,y,answer){const e=document.createElement("div");e.className="card";e.innerHTML=`<span>${label}</span>${sub?`<small>${sub}</small>`:""}`;cards.append(e);const o={e,label,sub,x,y,ox:x,oy:y,answer,removed:false,fall:0};objects.push(o);position(o);e.addEventListener("pointerdown",ev=>{if(mode!=="mouse"||lock||active)return;ev.preventDefault();e.setPointerCapture(ev.pointerId);const p=loc(ev);grab(o,p)});e.addEventListener("pointermove",ev=>{if(mode==="mouse"&&active===o)move(loc(ev))});e.addEventListener("pointerup",ev=>{if(mode==="mouse"&&active===o)release()});e.addEventListener("pointercancel",ev=>{if(mode==="mouse"&&active===o)release()});return o}
 function position(o){o.e.style.left=o.x+"%";o.e.style.top=o.y+"%"}
@@ -65,25 +65,52 @@ function showModal(title,body,button,fn){modal.classList.remove("hidden");modal.
 function start(){token++;resetObjects();modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});say("가고 싶은 나라의 국기를 잡아서 여행 가방에 넣어 보세요")}
 function drawSlots(){target.innerHTML="";data[country].letters.forEach((v,i)=>{const e=document.createElement("div");e.className="slot "+(i<done.length?"done":i===done.length?"active":"");e.textContent=done[i]||"□";target.append(e)});$("progress").textContent=done.length+" / "+data[country].letters.length}
 function letters(){resetObjects();game.classList.add("country-stage");phase=2;done=[];setStage("STEP 02 · 나라 이름","2 / 3",data[country].flag+" 글자를 순서대로 빈칸에 놓아요!");drawSlots();say("글자를 순서대로 빈칸에 놓아 보세요")}
-function spawnLetter(){if(phase!==2||lock||objects.length>=5)return;const wanted=data[country].letters[done.length];const pool=[...new Set(Object.values(data).flatMap(v=>v.letters).concat(["가","나","모"]))];const good=Math.random()<.75;const v=good?wanted:pool.filter(x=>x!==wanted)[Math.floor(Math.random()*(pool.length-1))];const o=addCard(v,"",6+Math.random()*77,16,v);o.y=-17;o.oy=17;o.fall=5.2;position(o)}
-function drawBag(){target.innerHTML='<div class="targetText">🎒 보물 '+collected.length+' / 3　'+collected.map(()=> "⭐").join(" ")+'</div>';$("progress").textContent=collected.length+" / 3"}
-function culture(){resetObjects();game.classList.add("country-stage");phase=3;collected=[];setStage("STEP 03 · 문화 탐험","3 / 3","하늘에서 내려오는 우리 나라의 보물 3개를 잡아요!");drawBag();const good=data[country].culture.map(([e,n])=>({e,n,good:true}));const bad=Object.entries(data).filter(([k])=>k!==country).flatMap(([,v])=>v.culture.map(([e,n])=>({e,n,good:false}))).sort(()=>Math.random()-.5).slice(0,3);/* Culture treasures fall from the sky like the syllables in stage 2. */culturePool=[...good,...bad];cultureSpawnIndex=0;cultureSpawnTimer=0;say("우리 나라의 보물을 세 개 찾아 가방에 넣어 보세요")}
-function spawnCulture(){if(phase!==3||lock||objects.length>=6)return;
- const waiting=culturePool.filter(v=>!v.spawned);
- const available=waiting.length?waiting:culturePool.filter(v=>!v.good);
- if(!available.length)return;
- // Keep a healthy supply of the remaining correct treasures.
- const remaining=data[country].culture.filter(([,name])=>!collected.includes(name));
- const must=remaining.length&&(!objects.some(o=>o.answer&&!o.removed)||Math.random()<.7);
- let v=must?available.find(v=>v.good&&remaining.some(([,name])=>name===v.n)):null;
- if(!v)v=available[Math.floor(Math.random()*available.length)];
+function spawnLetter(){
+ if(phase!==2||lock||objects.length>=5)return;
+ const wanted=data[country].letters[done.length];
+ const visible=new Set(objects.map(o=>o.answer));
+ const pool=[...new Set(Object.values(data).flatMap(v=>v.letters).concat(["가","나","모"]))];
+ const decoys=pool.filter(v=>v!==wanted&&!visible.has(v)&&!letterRecent.slice(-5).includes(v));
+ // Ensure the next needed syllable is always present promptly, without cloning it on screen.
+ const shouldCorrect=!visible.has(wanted)&&(spawnCount%2===0||objects.length>=2||Math.random()<.65);
+ let v=shouldCorrect?wanted:null;
+ if(!v){const options=decoys.length?decoys:pool.filter(x=>x!==wanted&&!visible.has(x));v=options[Math.floor(Math.random()*options.length)]||(!visible.has(wanted)?wanted:null)}
  if(!v)return;
- v.spawned=true;
+ const o=addCard(v,"",6+Math.random()*77,-17,v);o.oy=-17;o.fall=13;position(o);
+ letterRecent.push(v);if(letterRecent.length>8)letterRecent.shift();spawnCount++;
+}
+function drawBag(){target.innerHTML='<div class="targetText">🎒 보물 '+collected.length+' / 3　'+collected.map(()=> "⭐").join(" ")+'</div>';$("progress").textContent=collected.length+" / 3"}
+function culture(){
+ resetObjects();game.classList.add("country-stage");phase=3;collected=[];
+ setStage("STEP 03 · 문화 탐험","3 / 3","하늘에서 내려오는 우리 나라의 보물 3개를 잡아요!");
+ drawBag();
+ const good=data[country].culture.map(([e,n])=>({e,n,good:true}));
+ const goodNames=new Set(good.map(v=>v.n));
+ const bad=Object.entries(data).filter(([k])=>k!==country).flatMap(([,v])=>v.culture.map(([e,n])=>({e,n,good:false}))).filter(v=>!goodNames.has(v.n));
+ const seen=new Set();culturePool=[...good,...bad.filter(v=>!seen.has(v.n)&&seen.add(v.n))];
+ cultureSpawnIndex=0;cultureRecent=[];spawnCount=0;
+ say("우리 나라의 보물을 세 개 찾아 가방에 넣어 보세요");
+}
+function spawnCulture(){
+ if(phase!==3||lock||objects.length>=6)return;
+ const visible=new Set(objects.map(o=>o.sub));
+ const remaining=culturePool.filter(v=>v.good&&!collected.includes(v.n));
+ const unseenCorrect=remaining.filter(v=>!visible.has(v.n));
+ const candidates=culturePool.filter(v=>!v.good&&!visible.has(v.n));
+ const fresh=candidates.filter(v=>!cultureRecent.slice(-10).includes(v.n));
+ // Every other new card is a missing correct treasure when one is not already visible.
+ const correctOnScreen=objects.filter(o=>o.answer).length;
+ const preferCorrect=unseenCorrect.length&&(correctOnScreen===0||spawnCount%2===0);
+ let v=preferCorrect?unseenCorrect[0]:null;
+ if(!v){const options=fresh.length?fresh:candidates;v=options[Math.floor(Math.random()*options.length)]}
+ if(!v&&unseenCorrect.length)v=unseenCorrect[0];
+ if(!v)return;
  const o=addCard(v.e,v.n,5+Math.random()*77,-20,v.good);
- o.oy=-20;o.fall=4.6;position(o);
+ o.oy=-20;o.fall=12;position(o);
+ cultureRecent.push(v.n);if(cultureRecent.length>15)cultureRecent.shift();spawnCount++;
 }
 function reward(){token++;resetObjects();game.classList.add("country-stage");phase=4;setStage("MISSION CLEAR!","🎉 국기 조각 획득","");showModal("🎉 여행 성공!",`<span style="font-size:70px">${data[country].flag} 🧩</span><br>${data[country].name}의 국기 조각을 얻었어요!`,"다른 나라 여행하기",start);say("여행 성공! 국기 조각을 획득했어요")}
-function frame(t){const dt=Math.min((t-lastFrame)/1000||0,.05);lastFrame=t;if((phase===2||phase===3)&&!lock){spawnTimer+=dt;const interval=phase===2?1.6:1.45;if(spawnTimer>interval){spawnTimer=0;if(phase===2)spawnLetter();else spawnCulture()}for(const o of [...objects]){if(o===active||!o.fall)continue;o.y+=o.fall*dt;position(o);if(o.y>85){remove(o);if(phase===3){const item=culturePool.find(v=>v.n===o.sub);if(item)item.spawned=false}}}}requestAnimationFrame(frame)}requestAnimationFrame(frame);
+function frame(t){const dt=Math.min((t-lastFrame)/1000||0,.05);lastFrame=t;if((phase===2||phase===3)&&!lock){spawnTimer+=dt;const interval=phase===2?1.15:1.25;if(spawnTimer>interval){spawnTimer=0;if(phase===2)spawnLetter();else spawnCulture()}for(const o of [...objects]){if(o===active||!o.fall)continue;o.y+=o.fall*dt;position(o);if(o.y>85){remove(o);if(phase===3){const item=culturePool.find(v=>v.n===o.sub);if(item)item.spawned=false}}}}requestAnimationFrame(frame)}requestAnimationFrame(frame);
 function updateHand(raw,pinch){const p={x:Math.max(0,Math.min(100,raw.x)),y:Math.max(0,Math.min(100,raw.y))};smoothed=smoothed?{x:smoothed.x*.7+p.x*.3,y:smoothed.y*.7+p.y*.3}:p;const c=$("cursor");c.style.left=smoothed.x+"%";c.style.top=smoothed.y+"%";c.style.background=pinch?"#ffd75b":"#fff8";
 // Require two stable frames to start and three to release: less accidental drops.
 if(pinch){pinchFrames++;releaseFrames=0}else{releaseFrames++;pinchFrames=0}
