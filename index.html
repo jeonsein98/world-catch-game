@@ -75,6 +75,8 @@
 #chooseFlag{background:#bcebf9;color:#134d82}
 #chooseRoulette{background:#ffdd64;color:#633d08}
 .roulette-label span{display:block;font-size:clamp(30px,4.4vw,54px);line-height:1.2;text-shadow:0 2px 4px #0004}.roulette-label img{width:clamp(35px,5.5vw,65px);height:auto;aspect-ratio:3/2;object-fit:cover;border:2px solid #fff;border-radius:5px;box-shadow:0 2px 5px #3335}
+#choicePanel button.hand-focus,#rouletteSpin.hand-focus,#rouletteClose.hand-focus{outline:6px solid #ffbf00;outline-offset:5px;filter:brightness(1.07);transform:scale(1.035)}
+.roulette-label span{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif!important;font-size:clamp(32px,5vw,62px)!important;color:transparent;text-shadow:none!important;white-space:nowrap}
 #rouletteSpin{background:#ffdf54;color:#503300}#rouletteClose{background:#fff;color:#315275}
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
@@ -274,7 +276,7 @@ function start(){$("choicePanel").classList.remove("visible");$("rouletteLayer")
 
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-debug-v10";
+const gameVersion="2026.10.09-hand-menu-v11";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -283,16 +285,18 @@ $("rouletteButton").title="버전 "+gameVersion;
 rouletteCountries.forEach((key,i)=>{
  const label=document.createElement("div");label.className="roulette-label";
  label.style.setProperty("--angle",(i*360/rouletteCountries.length+360/rouletteCountries.length/2)+"deg");
- label.innerHTML=`<span role="img" aria-label="${data[key].name} 국기">${data[key].flag}</span>`;wheel.append(label);
+ label.replaceChildren();const flag=document.createElement("span");flag.setAttribute("role","img");flag.setAttribute("aria-label",data[key].name+" 국기");flag.textContent=data[key].flag;label.append(flag);wheel.append(label);
 });
 $("rouletteButton").onclick=()=>{
  if(phase!==1)return;
  $("rouletteLayer").classList.add("visible");
+ menuPinchWasDown=false;
  $("rouletteButton").style.display="none";
  $("rouletteSpin").disabled=false;
 };
 function openTravelChoice(){
  if(phase!==1)return;
+ menuPinchWasDown=false;
  $("choicePanel").classList.add("visible");
 }
 $("chooseFlag").onclick=()=>{$("choicePanel").classList.remove("visible");say("가고 싶은 국기를 여행 가방에 넣어 보세요")};
@@ -428,8 +432,22 @@ function hoveredFlag(p){
   return p.x>=x-2&&p.x<=x+w+2&&p.y>=y-2&&p.y<=y+h+2;
  })||null;
 }
+let menuPinchWasDown=false;
+function handMenuAction(p,pinch){
+ const menu=$("choicePanel").classList.contains("visible")?[$("chooseFlag"),$("chooseRoulette")]:$("rouletteLayer").classList.contains("visible")?[$("rouletteSpin"),$("rouletteClose")]:[];
+ if(!menu.length){menuPinchWasDown=pinch;return false}
+ const bounds=game.getBoundingClientRect();
+ const px=bounds.left+p.x*bounds.width/100,py=bounds.top+p.y*bounds.height/100;
+ let selected=null;
+ for(const b of menu){const r=b.getBoundingClientRect();if(px>=r.left-12&&px<=r.right+12&&py>=r.top-12&&py<=r.bottom+12){selected=b;break}}
+ menu.forEach(b=>b.classList.toggle("hand-focus",b===selected));
+ if(pinch&&!menuPinchWasDown&&selected&&!selected.disabled){selected.click()}
+ menuPinchWasDown=pinch;
+ return true;
+}
 function updateHand(raw,pinch){const p={x:Math.max(0,Math.min(100,raw.x)),y:Math.max(0,Math.min(100,raw.y))};smoothed=smoothed?{x:smoothed.x*.7+p.x*.3,y:smoothed.y*.7+p.y*.3}:p;const c=$("cursor");c.style.left=smoothed.x+"%";c.style.top=smoothed.y+"%";c.style.background=pinch?"#ffd75b":"#fff8";
  c.classList.toggle("pinching",pinch);
+ if(handMenuAction(smoothed,pinch)){prevPinch=pinch;return}
  const hover=hoveredFlag(smoothed);
  c.classList.toggle("near-flag",!!hover);
  for(const o of objects)if(o.e.classList.contains("flag-card"))o.e.classList.toggle("hovered",o===hover);highlightFlag(hover);
