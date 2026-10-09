@@ -40,7 +40,7 @@ gb:{name:"영국",flag:"🇬🇧",letters:["영","국"],culture:[["🚌","빨간
 de:{name:"독일",flag:"🇩🇪",letters:["독","일"],culture:[["🥨","프레첼"],["🏰","노이슈반슈타인성"],["🚗","자동차"]]},
 it:{name:"이탈리아",flag:"🇮🇹",letters:["이","탈","리","아"],culture:[["🍕","피자"],["🍝","파스타"],["🏛️","콜로세움"]]}
 };
-const artPositions={kr:[10,32],jp:[33,36],fr:[55,33],br:[78,36],au:[18,54],cn:[25,37],ca:[86,60],us:[90,34],gb:[5,57],de:[76,46],it:[64,52]};
+const artPositions={kr:[47,32],jp:[17,22],fr:[75,19],br:[3,36],au:[20,53],cn:[25,36],ca:[86,58],us:[89,32],gb:[5,55],de:[75,43],it:[62,49]};
 const $=id=>document.getElementById(id), game=$("game"), cards=$("cards"),target=$("target"),modal=$("modal");
 let phase=0,country=null,done=[],collected=[],active=null,objects=[],mode="mouse",handLandmarker=null,stream=null,detectActive=false,lastVideoTime=-1,prevPinch=false,smoothed=null,lock=false,token=0,spawnTimer=0,lastFrame=0,pinchFrames=0,releaseFrames=0,missingFrames=0;
 const say=t=>{if(!$("sound").checked||!("speechSynthesis" in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="ko-KR";u.rate=.87;window.speechSynthesis.speak(u)};
