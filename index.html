@@ -94,7 +94,7 @@
 </style></head><body>
 <header><h1>🌏 캐치 캐치! 세계여행</h1><div><button id="restart" class="alt">처음부터</button> <button id="fullscreen" class="alt">전체 화면</button></div></header>
 <main><div class="toolbar"><button id="cameraButton">📷 웹캠 손 인식 시작</button><button id="mouseButton" class="alt">🖱️ 마우스·터치 연습</button><label>🔊 음성 <input type="checkbox" id="sound" checked></label><span id="status">웹캠 모드에서는 🤏 잡기 → 이동 → 🖐️ 놓기</span></div>
-<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><button id="rouletteButton" type="button">🎡 랜덤 여행 룰렛</button><div id="countryWelcome"><div id="welcomeCard"><h2 id="welcomeTitle">여행 친구를 만나요!</h2><div id="welcomeCharacter"></div><div id="welcomeGreeting"></div><div id="welcomePron"></div><button id="welcomeRepeat" type="button">🔊 인사 다시 듣기</button><button id="welcomeContinue" type="button">✈️ 게임 시작!</button></div></div><div id="choicePanel"><div class="choice-box"><h2>🌏 어디로 여행을 떠날까요?</h2><p>여행 방법을 골라 보세요!</p><div class="choice-actions"><button id="chooseFlag" type="button">🧳 내가 나라 고르기</button><button id="chooseRoulette" type="button">🎡 룰렛으로 뽑기</button></div></div></div><div id="rouletteLayer"><div id="roulettePointer">▼</div><div id="rouletteWheel"></div><button id="rouletteSpin" type="button">🎲 룰렛 돌리기!</button><button id="rouletteClose" type="button">닫기</button></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="prepareCamera" type="button">📷 웹캠 손 인식 시작</button><button id="start" disabled>⏳ 카메라 연결 후 시작</button><button id="skipCamera" type="button" style="display:block;margin:12px auto;background:#fff1b5;color:#4c3a10;border:2px solid #e6bf50;border-radius:18px;padding:12px 20px;font-weight:900;cursor:pointer">🖱️ 웹캠 없이 먼저 시작하기</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
+<div id="game"><video id="video" autoplay muted playsinline></video><div id="overlay"></div><div id="top"><span class="tag" id="level">STEP 01</span><span class="tag" id="progress">✈️ 여행 준비</span></div><div id="prompt"></div><button id="rouletteButton" type="button">🎡 랜덤 여행 룰렛</button><div id="countryWelcome"><div id="welcomeCard"><h2 id="welcomeTitle">여행 친구를 만나요!</h2><div id="welcomeCharacter"></div><div id="welcomeGreeting"></div><div id="welcomePron"></div><button id="welcomeRepeat" type="button">🔊 인사 다시 듣기</button></div></div><div id="choicePanel"><div class="choice-box"><h2>🌏 어디로 여행을 떠날까요?</h2><p>여행 방법을 골라 보세요!</p><div class="choice-actions"><button id="chooseFlag" type="button">🧳 내가 나라 고르기</button><button id="chooseRoulette" type="button">🎡 룰렛으로 뽑기</button></div></div></div><div id="rouletteLayer"><div id="roulettePointer">▼</div><div id="rouletteWheel"></div><button id="rouletteSpin" type="button">🎲 룰렛 돌리기!</button><button id="rouletteClose" type="button">닫기</button></div><div id="target"></div><div id="cards"></div><svg id="flagOutline" viewBox="0 0 1361 717" preserveAspectRatio="none" aria-hidden="true"></svg><div id="confetti"></div><div id="cursor"></div><div id="handHint">🤏 카드를 집고 🧳 가방에 놓아요</div><div id="message"></div><div id="modal"><div class="panel"><h2>📷 손 인식 준비!</h2><div id="prepHand">🖐️</div><p id="prepGuide">카메라 앞에서 손을 흔들어 보세요.<br>엄지와 검지를 오므렸다가 펴 보세요.</p><p id="prepState">카메라 연결을 준비하고 있어요…</p><button id="prepareCamera" type="button">📷 웹캠 손 인식 시작</button><button id="start" disabled>⏳ 카메라 연결 후 시작</button><button id="skipCamera" type="button" style="display:block;margin:12px auto;background:#fff1b5;color:#4c3a10;border:2px solid #e6bf50;border-radius:18px;padding:12px 20px;font-weight:900;cursor:pointer">🖱️ 웹캠 없이 먼저 시작하기</button><p style="font-size:13px">카메라 권한을 허용해 주세요. 손 인식이 어려우면 마우스로도 시작할 수 있어요.</p></div></div></div>
 <p class="note">카메라 영상은 기기 안에서 처리하며 서버에 업로드하거나 저장하지 않습니다. 웹캠은 HTTPS 또는 localhost에서 실행하세요. MediaPipe 파일은 같은 Netlify 사이트에 함께 배포하도록 설계했습니다. 국기는 실제 국기 도안(SVG)이며, 문화 카드는 현재 그림 문자 시제품입니다.</p></main>
 <script>
 window.addEventListener("error",function(e){const p=document.getElementById("prepState");if(p)p.textContent="❌ 실행 오류: "+e.message+" (줄 "+e.lineno+")";});
@@ -346,10 +346,10 @@ function showCountryWelcome(){
  speakWelcome();
 }
 $("welcomeRepeat").onclick=speakWelcome;
-$("welcomeContinue").onclick=()=>{welcomeSequence++;if(welcomeTimer)clearTimeout(welcomeTimer);window.speechSynthesis?.cancel();finishWelcome(welcomeSequence)};
+
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-auto-greeting-v15";
+const gameVersion="2026.10.09-auto-greeting-v16";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -514,7 +514,7 @@ function hoveredFlag(p){
 }
 let menuPinchWasDown=false;
 function handMenuAction(p,pinch){
- const menu=$("countryWelcome").classList.contains("visible")?[$("welcomeRepeat"),$("welcomeContinue")]:$("choicePanel").classList.contains("visible")?[$("chooseFlag"),$("chooseRoulette")]:$("rouletteLayer").classList.contains("visible")?[$("rouletteSpin"),$("rouletteClose")]:[];
+ const menu=$("countryWelcome").classList.contains("visible")?[$("welcomeRepeat")]:$("choicePanel").classList.contains("visible")?[$("chooseFlag"),$("chooseRoulette")]:$("rouletteLayer").classList.contains("visible")?[$("rouletteSpin"),$("rouletteClose")]:[];
  if(!menu.length){menuPinchWasDown=pinch;return false}
  const bounds=game.getBoundingClientRect();
  const px=bounds.left+p.x*bounds.width/100,py=bounds.top+p.y*bounds.height/100;
