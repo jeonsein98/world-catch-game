@@ -1,0 +1,25 @@
+name: Add treasure photographs
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/download_treasures.py'
+permissions:
+  contents: write
+jobs:
+  add-treasures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow
+      - run: python scripts/download_treasures.py
+      - name: Commit photos
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add treasures/
+          git diff --cached --quiet || (git commit -m "Add real treasure photos for country activities" && git push)
