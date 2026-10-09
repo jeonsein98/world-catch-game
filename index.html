@@ -286,7 +286,7 @@ function burstConfetti(){
  }
  setTimeout(()=>layer.replaceChildren(),3800);
 }
-function start(){$("countryWelcome").classList.remove("visible");$("choicePanel").classList.remove("visible");$("rouletteLayer").classList.remove("visible");rouletteBusy=false;stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");$("rouletteButton").style.display="none";Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});openTravelChoice()}
+function start(){welcomeSequence++;welcomeActive=false;if(welcomeTimer)clearTimeout(welcomeTimer);$("countryWelcome").classList.remove("visible");$("choicePanel").classList.remove("visible");$("rouletteLayer").classList.remove("visible");rouletteBusy=false;stopCountryMusic();unlockCelebrationAudio();token++;resetObjects();$("cursor").classList.remove("near-flag");modal.classList.add("hidden");phase=1;country=null;done=[];collected=[];game.style.removeProperty("--country-photo");highlightFlag(null);setStage("STEP 01 · 나라 선택","1 / 3","가고 싶은 국기를 여행 가방에 넣어요!");target.innerHTML='<div class="targetText" style="background:#fff9;border-radius:12px;padding:3px 8px">🧳 여행 가방</div>';game.classList.remove("country-stage");$("rouletteButton").style.display="none";Object.entries(data).forEach(([k,v])=>{const [x,y]=artPositions[k];const o=addCard(v.flag,v.name,x,y,k);o.e.classList.add("flag-card","art-hotspot");o.e.style.setProperty("--flag-angle",({kr:"14deg",jp:"-12deg",fr:"11deg",br:"-13deg",au:"-12deg",cn:"-10deg",ca:"7deg",us:"-10deg",gb:"-13deg",de:"3deg",it:"12deg"})[k]||"0deg");o.e.setAttribute("aria-label",v.name+" 국기 잡기");o.e.title=v.name+" 국기 잡기";const art=["kr","jp","fr","br"].includes(k)?`<img draggable="false" src="./flags/${k}.svg" alt="${v.name} 국기">`:v.flag;o.e.innerHTML=`<span class="hotspot-visual">${art}<small>${v.name}</small></span>`;});openTravelChoice()}
 
 const welcomeInfo={
 kr:["안녕하세요!","안녕하세요","ko-KR","#f48ab0","#cfefff","한복"],
@@ -309,12 +309,29 @@ function welcomeAvatar(key){
  const band=key==="jp"?'<path d="M55 138L132 185M133 138L56 185" stroke="#f6e1e7" stroke-width="15"/>':key==="kr"?'<path d="M65 135L126 191M122 136L66 189" stroke="#fff6c8" stroke-width="16"/>':key==="fr"?'<path d="M72 134V204M103 134V204M133 134V204" stroke="white" stroke-width="12"/>':'';
  return '<svg viewBox="0 0 190 235" role="img" aria-label="'+data[key].name+'의 '+info[5]+'을 입은 만화 캐릭터"><path d="M56 133L35 150L9 125" fill="none" stroke="#e5a46f" stroke-width="19" stroke-linecap="round"/><path d="M134 133L159 108L178 85" fill="none" stroke="#e5a46f" stroke-width="19" stroke-linecap="round"/><path d="M57 122Q95 108 133 122L149 215Q94 229 42 215Z" fill="'+coat+'" stroke="#fff" stroke-width="5"/>'+band+'<path d="M79 214V230M111 214V230" stroke="#444b66" stroke-width="16" stroke-linecap="round"/><circle cx="94" cy="81" r="49" fill="#eeb784"/><path d="M46 68Q42 20 94 24Q143 20 143 68L126 50Q92 69 62 48Z" fill="#4c3540"/><circle cx="77" cy="84" r="4" fill="#3a2c35"/><circle cx="111" cy="84" r="4" fill="#3a2c35"/><path d="M80 102Q94 117 108 102" stroke="#a34b4c" stroke-width="4" fill="none" stroke-linecap="round"/>'+hat+'</svg>';
 }
+let welcomeTimer=null;
+let welcomeSequence=0;
+function finishWelcome(sequence){
+ if(sequence!==welcomeSequence||!welcomeActive)return;
+ if(welcomeTimer){clearTimeout(welcomeTimer);welcomeTimer=null}
+ $("countryWelcome").classList.remove("visible");
+ welcomeActive=false;lock=false;letters();
+}
 function speakWelcome(){
- if(!$("sound").checked||!window.speechSynthesis)return;
+ const sequence=++welcomeSequence;
+ if(welcomeTimer)clearTimeout(welcomeTimer);
+ // Even without sound or an installed language voice, continue automatically.
+ if(!$("sound").checked||!("speechSynthesis" in window)){
+  welcomeTimer=setTimeout(()=>finishWelcome(sequence),1800);return;
+ }
  const info=welcomeInfo[country]||welcomeInfo.kr;
  window.speechSynthesis.cancel();
  const u=new SpeechSynthesisUtterance(info[0]);u.lang=info[2];u.rate=.82;u.pitch=1.15;
  const voice=pickVoice(info[2]);if(voice)u.voice=voice;
+ u.onend=()=>{if(sequence===welcomeSequence)welcomeTimer=setTimeout(()=>finishWelcome(sequence),650)};
+ u.onerror=()=>{if(sequence===welcomeSequence)welcomeTimer=setTimeout(()=>finishWelcome(sequence),650)};
+ // Some browsers never fire onend; this safety timer prevents getting stuck.
+ welcomeTimer=setTimeout(()=>finishWelcome(sequence),5500);
  window.speechSynthesis.speak(u);
 }
 function showCountryWelcome(){
@@ -329,10 +346,10 @@ function showCountryWelcome(){
  speakWelcome();
 }
 $("welcomeRepeat").onclick=speakWelcome;
-$("welcomeContinue").onclick=()=>{$("countryWelcome").classList.remove("visible");welcomeActive=false;lock=false;letters()};
+$("welcomeContinue").onclick=()=>{welcomeSequence++;if(welcomeTimer)clearTimeout(welcomeTimer);window.speechSynthesis?.cancel();finishWelcome(welcomeSequence)};
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-country-greetings-v14";
+const gameVersion="2026.10.09-auto-greeting-v15";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
@@ -405,14 +422,14 @@ function spawnLetter(){
 function drawBag(){target.innerHTML='<div class="targetText">🎒 보물 '+collected.length+' / 3　'+collected.map(()=> "⭐").join(" ")+'</div>';$("progress").textContent=collected.length+" / 3"}
 function culture(){
  resetObjects();game.classList.add("country-stage");phase=3;collected=[];startCountryMusic();
- setStage("STEP 03 · 문화 탐험","3 / 3","하늘에서 내려오는 우리 나라의 보물 3개를 잡아요!");
+ setStage("STEP 03 · 문화 탐험","3 / 3","하늘에서 내려오는 "+data[country].name+"의 보물 3개를 잡아요!");
  drawBag();
  const good=data[country].culture.map(([e,n])=>({e,n,good:true}));
  const goodNames=new Set(good.map(v=>v.n));
  const bad=Object.entries(data).filter(([k])=>k!==country).flatMap(([,v])=>v.culture.map(([e,n])=>({e,n,good:false}))).filter(v=>!goodNames.has(v.n));
  const seen=new Set();culturePool=[...good,...bad.filter(v=>!seen.has(v.n)&&seen.add(v.n))];
  cultureSpawnIndex=0;cultureRecent=[];spawnCount=0;
- say("우리 나라의 보물을 세 개 찾아 가방에 넣어 보세요");
+ say(data[country].name+"의 보물을 세 개 찾아 가방에 넣어 보세요");
 }
 function spawnCulture(){
  if(phase!==3||lock||objects.length>=6)return;
