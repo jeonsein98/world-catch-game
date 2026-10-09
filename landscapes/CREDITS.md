@@ -5,9 +5,9 @@ Photographs were resized/cropped to 1600 × 900 for the educational game.
 Individual photographers and landmark accuracy should be reviewed before public distribution.
 
 ## KR — Gyeongbokgung Palace, Seoul
-- Image URL: https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?auto=format&fit=crop&w=1600&h=900&q=82
-- Source: https://unsplash.com/photos/1534274988757-a28bf1a57c17
-- License: https://unsplash.com/license
+- Image URL: https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg/3840px-%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+- Source: https://en.wikipedia.org/wiki/Gyeongbokgung
+- License and photographer: inspect the linked Wikimedia Commons file page before reuse
 
 ## JP — Mount Fuji, Japan
 - Image URL: https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1600&h=900&q=82
