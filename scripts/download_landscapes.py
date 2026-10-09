@@ -2,7 +2,7 @@
 """Download freely licensed country landmark photos from Wikimedia Commons.
 Run in GitHub Actions or locally. Check credits in landscapes/CREDITS.md.
 """
-import json, os, re, time, urllib.parse, urllib.request
+import json, os, re, time, random, urllib.parse, urllib.request, urllib.error
 from pathlib import Path
 from PIL import Image, ImageOps, ImageEnhance
 from io import BytesIO
@@ -22,11 +22,21 @@ SEARCHES = {
  "it": "Colosseum Rome",
 }
 API="https://commons.wikimedia.org/w/api.php"
-HEADERS={"User-Agent":"WorldCatchEducationalGame/1.0 (Wikimedia Commons attribution; educational game)"}
+HEADERS={"User-Agent":"WorldCatchEducationalGame/1.1 (educational project; contact via GitHub jeonsein98/world-catch-game)","Accept":"application/json,image/*;q=0.9,*/*;q=0.5"}
+def open_with_retry(url, timeout=45, attempts=5):
+    for n in range(attempts):
+        try:
+            return urllib.request.urlopen(urllib.request.Request(url,headers=HEADERS),timeout=timeout)
+        except urllib.error.HTTPError as e:
+            if e.code not in (429,500,502,503,504) or n==attempts-1:raise
+            retry=e.headers.get("Retry-After","")
+            delay=min(100,max(12, int(retry) if retry.isdigit() else 15*(n+1)))+random.uniform(1,3)
+            print(f"HTTP {e.code}, waiting {delay:.0f}s before retry {n+2}/{attempts}",flush=True)
+            time.sleep(delay)
+
 def request(params):
     url=API+"?"+urllib.parse.urlencode(params)
-    req=urllib.request.Request(url,headers=HEADERS)
-    with urllib.request.urlopen(req,timeout=45) as r:return json.load(r)
+    with open_with_retry(url,timeout=45) as r:return json.load(r)
 def clean(s):
     return re.sub(r"<[^>]+>","",unescape(s or "")).strip()
 def get_photo(term):
@@ -53,8 +63,16 @@ def main():
     for code,term in SEARCHES.items():
         try:
             ratio,page,info,license_name=get_photo(term)
-            req=urllib.request.Request(info["url"],headers=HEADERS)
-            with urllib.request.urlopen(req,timeout=70) as r:raw=r.read(22_000_000)
+            # Use a scaled Wikimedia thumbnail rather than repeatedly fetching huge originals.
+            source_url=info["url"]
+            thumb=source_url.replace("/commons/","/commons/thumb/",1)
+            filename=source_url.rsplit("/",1)[-1]
+            thumb=thumb+"/1600px-"+filename if "/commons/thumb/" in thumb else source_url
+            try:
+                with open_with_retry(thumb,timeout=70,attempts=4) as r:raw=r.read(16_000_000)
+            except urllib.error.HTTPError as e:
+                if e.code not in (403,404):raise
+                with open_with_retry(source_url,timeout=70,attempts=4) as r:raw=r.read(22_000_000)
             im=Image.open(BytesIO(raw)).convert("RGB")
             im=ImageOps.fit(im,(1600,900),method=Image.Resampling.LANCZOS,centering=(.5,.48))
             im.save(out/(code+".jpg"),"JPEG",quality=81,optimize=True)
@@ -67,6 +85,6 @@ def main():
         except Exception as exc:
             print("FAILED",code,str(exc))
             raise
-        time.sleep(.35)
+        time.sleep(4)
     (out/"CREDITS.md").write_text("\n".join(credits),encoding="utf-8")
 if __name__=="__main__":main()
