@@ -195,16 +195,17 @@ function startCountryMusic(){
  const AC=window.AudioContext||window.webkitAudioContext;
  if(!AC)return;
  musicContext=musicContext||new AC();musicContext.resume().catch(()=>{});
- musicBus=musicContext.createGain();musicBus.gain.value=.21;musicBus.connect(musicContext.destination);
- const st=folkStyles[country];musicStep=0;musicCountry=country;
+ musicBus=musicContext.createGain();musicBus.gain.value=.38;musicBus.connect(musicContext.destination);
+ const st={...folkStyles[country],tempo:Math.round(folkStyles[country].tempo*1.15)};musicStep=0;musicCountry=country;
  const tick=()=>{
   if(!$("sound").checked||!(phase===2||phase===3)){stopCountryMusic();return}
   const phrase=[0,2,4,2,3,1,2,0,4,3,2,1,0,1,2,0];
   const degree=phrase[musicStep%phrase.length]%st.scale.length;
   const n=st.root+st.scale[degree]+(musicStep%8===7?12:0);
-  playMusicNote(n,Math.max(.2,60/st.tempo*.8),st.wave,.19);
-  if(musicStep%4===0)playMusicNote(st.root-12,.48,"sine",.10);
-  if(["br","us","au"].includes(country)&&musicStep%2===1)playMusicNote(st.root-12,.12,"triangle",.045);
+  playMusicNote(n,Math.max(.17,60/st.tempo*.72),st.wave,.24);
+  if(musicStep%4===0)playMusicNote(st.root-12,.36,"sine",.14);
+  if(musicStep%2===1)playMusicNote(st.root-12,.11,"triangle",.055);
+  if(musicStep%4===2)playMusicNote(st.root+12,.14,"triangle",.035);
   musicStep++;
  };
  tick();musicTimer=setInterval(tick,60000/st.tempo);
@@ -276,7 +277,7 @@ function start(){$("choicePanel").classList.remove("visible");$("rouletteLayer")
 
 const rouletteCountries=Object.keys(data);
 // Visible version label helps distinguish cached GitHub Pages builds.
-const gameVersion="2026.10.09-real-flags-v12";
+const gameVersion="2026.10.09-upbeat-music-v13";
 let rouletteRotation=0,rouletteBusy=false;
 const wheel=$("rouletteWheel");
 window.addEventListener("error",e=>console.error("Game error:",e.message));
