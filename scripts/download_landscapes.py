@@ -38,7 +38,7 @@ def get_photo(term):
         meta=info.get("extmetadata",{})
         license_name=clean(meta.get("LicenseShortName",{}).get("value",""))
         # CC BY and CC0 are preferred; exclude share-alike to keep derivative licensing simple.
-        if not re.match(r"^(CC0|CC BY [234]\\.0)$",license_name):continue
+        if not re.match(r"^(CC0|CC BY [234]\.0)$",license_name):continue
         if info.get("width",0)<1100 or info.get("height",0)<650:continue
         url=info.get("url","")
         if not url.lower().split("?")[0].endswith((".jpg",".jpeg",".png")):continue
@@ -68,5 +68,5 @@ def main():
             print("FAILED",code,str(exc))
             raise
         time.sleep(.35)
-    (out/"CREDITS.md").write_text("\\n".join(credits),encoding="utf-8")
+    (out/"CREDITS.md").write_text("\n".join(credits),encoding="utf-8")
 if __name__=="__main__":main()
